@@ -1,0 +1,3 @@
+std_msgs/Header header
+uint32 number_of_lanes
+VehiclePosition[] vehicles_information

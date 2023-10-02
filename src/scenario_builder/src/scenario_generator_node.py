@@ -1,0 +1,74 @@
+#!/usr/bin/env python
+
+import rospy
+import std_msgs.msg
+from lane_msgs.msg import ScenarioData
+from lane_msgs.msg import VehiclePosition
+
+class ScenarioGenerator:
+    def __init__(self, number_of_lanes, vehicles_initial_info):
+        self.number_of_lanes = number_of_lanes
+        self.vehicle_info = vehicles_initial_info
+        self.counter = 0
+
+    def get_vehicles_position(self):
+        vehicle_current_positions = []
+        for id, vehicle in enumerate(self.vehicle_info):
+            vehicle_position = VehiclePosition()
+            vehicle_position.lane_number = vehicle["lane_number"]
+            vehicle_position.pos_x = (self.counter * vehicle["speed"] * 0.1) + vehicle["initial_pos_x"]
+            vehicle_position.id  = id
+            vehicle_position.velocity_x = vehicle["speed"]
+
+            vehicle_current_positions.append(vehicle_position)
+
+        self.counter += 1
+        return vehicle_current_positions
+
+    def get_scenario_data(self):
+        scenario_data = ScenarioData()
+        scenario_data.header = std_msgs.msg.Header()
+        scenario_data.header.stamp = rospy.Time.now()
+        scenario_data.header.seq = self.counter
+        scenario_data.number_of_lanes = self.number_of_lanes
+        scenario_data.vehicles_information = self.get_vehicles_position()
+
+        return scenario_data
+
+class ScenarioNode:
+    def __init__(self):
+        self.rate = rospy.Rate(5) # 10hz
+        topic_name = "mlc/scenario_information"
+        self.scenario_publisher = rospy.Publisher(topic_name, ScenarioData, queue_size=10)
+
+
+    def publish_scenario(self, scenario_generator):
+        while not rospy.is_shutdown():
+            msg = scenario_generator.get_scenario_data()
+            self.scenario_publisher.publish(msg)
+            self.rate.sleep()
+
+
+def get_vehicles_initial_info():
+    vehicles_initial_info = [{"lane_number": 1, "speed": 8.33, "initial_pos_x":10.0},
+                             {"lane_number": 2, "speed": 22.11, "initial_pos_x":0.0},
+                             {"lane_number": 3, "speed": 9.77, "initial_pos_x":120.0} ]
+
+    return vehicles_initial_info
+
+
+# Main function.
+if __name__ == '__main__':
+    rospy.init_node('scenario_generator')
+    try:
+
+        scenario_node = ScenarioNode()
+
+        number_of_lanes = 4
+        vehicles_initial_info =  get_vehicles_initial_info()
+        ego_speed = 16.66
+        scenario_generator = ScenarioGenerator(number_of_lanes, vehicles_initial_info)
+
+        scenario_node.publish_scenario(scenario_generator)
+    except rospy.ROSInterruptException:
+        pass
