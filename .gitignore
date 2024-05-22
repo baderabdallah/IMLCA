@@ -1,0 +1,14 @@
+devel/
+build/
+
+# Catkin custom files
+CATKIN_IGNORE
+.catkin_workspace
+
+# VS Code
+.vscode/*
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
