@@ -4,9 +4,6 @@
 @brief This file contains constants relevant to the scenario visualization.
 """
 
-# Matplotlib timing
-PLT_PAUSE_TIME = 0.001  # sec
-
 # Lengths
 LANE_WIDTH = 4.0     # m
 LOOK_BEHIND = 20.0   # m
@@ -22,7 +19,9 @@ FIGURE_HEIGHT = 5    # inch
 EGO_COLOR = "red"
 OTHER_CAR_COLOR = "steelblue"
 
-LANE_COLOR = "grey"
+STREET_COLOR = "dimgray"
+
+LANE_COLOR = "white"
 LANE_STYLE = "dashed"
 LANE_LINE_WIDTH = 4.0     # pixel
 

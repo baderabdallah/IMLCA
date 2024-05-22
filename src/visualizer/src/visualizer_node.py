@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from matplotlib.animation import FuncAnimation
 import matplotlib.pyplot as plt
 import rospy
 from lane_msgs.msg import Mlc
@@ -16,15 +17,24 @@ class VisualizerNode():
         mlc_topic = "/mlc/mlc_data"
         self._fig = plt.figure(
             num=FIGURE_TITLE, figsize=(FIGURE_WIDTH, FIGURE_HEIGHT))
-        self._ax = self._fig.add_axes([0.04, 0.075, 0.94, 0.85])
+
+        self._ax = self._fig.add_axes([0.04, 0.075, 0.94, 0.85], facecolor=STREET_COLOR)
+
         self.mlc_sunscriber = rospy.Subscriber(
             mlc_topic, Mlc, self.mlc_callback)
 
+        self.ani = FuncAnimation(self._fig, self.update_plot, cache_frame_data=False)
+
     def mlc_callback(self, msg):
-        """
-        Processing the received MLC message
-        """
-        plot_mlc(msg, self._ax)
+        self.latest_msg = msg
+
+    def update_plot(self, frame):
+        if hasattr(self, 'latest_msg'):
+            plot_mlc(self.latest_msg, self._ax)
+
+    def spin(self):
+        plt.show()
+        rospy.spin()
 
 
 # Main function.
@@ -33,7 +43,7 @@ if __name__ == '__main__':
     rospy.init_node('visualizer_node')
     try:
         visualizer_node = VisualizerNode()
-        plt.show(block=True)
+        visualizer_node.spin()
 
     except rospy.ROSInterruptException as err:
         print("[Visualization] An error occured:", err)
