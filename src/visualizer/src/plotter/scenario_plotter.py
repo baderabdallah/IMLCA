@@ -4,22 +4,12 @@
 @brief This file contains functions to plot the content of an MLC message on a given axis.
 """
 
-from matplotlib import transforms
-from matplotlib.ticker import AutoMinorLocator, MultipleLocator
+
 from plotter.constants import *
-import math
-import matplotlib.pyplot as plt
-import os, rospkg
-
-
-def get_y_coordinate_from_lane_number(scenario, lane_number):
-    """
-    Transforms a lane number into a valid Y coordinate, assuming that the vehicle is located at the center of the lane
-        @param scenario: scenario data
-        @param lane_number: Lane_number starting from 0 to (NUMBER_OF_LANES-1)
-    """
-    return ((scenario.number_of_lanes - lane_number - 0.5) * LANE_WIDTH)
-
+from plotter.objects.car import Car
+from plotter.objects.trajectory import Trajectory
+from plotter.objects.scene2D import Scene2D
+from plotter.helpers import *
 
 def get_min_max_x(mlc_message):
     """
@@ -51,164 +41,93 @@ def get_min_max_x(mlc_message):
 
     return (min_x, max_x)
 
+def __make_title(scenario):
+    timestamp = scenario.header.stamp
+    return f"Frame #{scenario.header.seq}, time: {timestamp.secs}.{timestamp.nsecs}"
 
-def plot_lanes(number_of_lanes, min_x, max_x, ax: plt.Axes):
-    """
-    Plots the lanes for a given scenario.
-        @param number_of_lanes: the number of lanes
-        @param min_x: the first X coordinate of the road section to be visualized
-        @param max_x: the last X coordinate of the road section to be visualized
-        @param ax: axis to plot to
-    """
-    for i in range(number_of_lanes + 1):
-        lane_xs = [min_x, max_x]
-        lane_ys = [i * LANE_WIDTH, i * LANE_WIDTH]
-        ax.plot(lane_xs, lane_ys, color=LANE_COLOR,
-                linestyle=LANE_STYLE, linewidth=LANE_LINE_WIDTH, zorder=3)
-
-
-def plot_car(ax, x, y, heading, is_ego, ):
-    """
-    Plots a single car to an axis.
-        @param x, y: car coordinates
-        @param heading: yaw (in degrees)
-        @param color: color to use
-        @param ax: axis to plot to
-    """
-
-    rospack = rospkg.RosPack()
-    node_path = rospack.get_path("visualizer")
-    if is_ego:
-        image = plt.imread(os.path.join(node_path, "src/plotter/img/red_car.png"))
-
-    else:
-        image = plt.imread(os.path.join(node_path, "src/plotter/img/blue_car.png"))
-
-    # rotation animation
-    tr = transforms.Affine2D().translate(-x, -y).rotate_deg(heading).translate(x, y)
-
-    # NOTE: axis limits need to be set after this line
-    ax.imshow(image, extent=[x - CAR_LENGTH / 2, x + CAR_LENGTH / 2, y - CAR_WIDTH / 2, y + CAR_WIDTH / 2], transform=tr + ax.transData, zorder=10)
-
-
-def plot_vehicles(scenario, min_x, max_x, ax):
-    """
-    Plots vehicles in a given scenario.
-        @param scenario: scenario data
-        @param min_x: the first X coordinate of the road section to be visualized
-        @param max_x: the last X coordinate of the road section to be visualized
-        @param ax: axis to plot to
-    """
-    # Collect car position data
-    xs = []
-    ys = []
-    for vehicle in scenario.vehicles_information:
-        if vehicle.pos_x > (min_x + CAR_LENGTH/2) and vehicle.pos_x < (max_x - CAR_LENGTH/2):
-            xs.append(vehicle.pos_x)
-            ys.append(get_y_coordinate_from_lane_number(
-                scenario, vehicle.lane_number))
-
-    # Draw the cars
-    for car_id, (x, y) in enumerate(zip(xs, ys)):
-        plot_car(ax, x, y, 0.0, False)
-
-
-def calculate_angle(trajectory):
-    """
-    Calculates the angle of the ego car heading by taking the first two points of the trajectory in consideration.
-        @param trajectory: trajectory data
-    """
-    if len(trajectory) < 2:
-        return 0.0
-
-    point0 = trajectory[0]
-    point1 = trajectory[1]
-    dx = point1.x - point0.x
-    dy = point1.y - point0.y
-
-    print(f"(dx, dy): {dx}, {dy}")
-    return math.degrees(math.atan2(dy, dx))
-
-
-def plot_trajectory(trajectory, ax):
-    """
-    Plots the ego car with the given trajectory.
-        @param trajectory: trajectory data
-        @param ax: axis to plot to
-    """
-    xs = []
-    ys = []
-    for pose in trajectory:
-        xs.append(pose.x)
-        ys.append(pose.y)
-
-    ax.plot(xs, ys, color=TRAJECTORY_COLOR,
-            linestyle=TRAJECTORY_STYLE, linewidth=TRAJECTORY_WIDTH)
-
-
-def plot_ego(mlc_message, ax):
-    """
-    Plots the ego car with the given trajectory.
-        @param mlc_message: MLC message
-        @param ax: axis to plot to
-    """
+def __get_trajectory(mlc_message):
     trajectory = mlc_message.ego_vehicle_trajectory.trajectory
+    
     if not trajectory:
         header = mlc_message.scenario_data.header
         timestamp = header.stamp
         print(
             f"* Message #{header.seq} contains an empty trajectory (at {timestamp.secs}.{timestamp.nsecs} seconds)")
-        return
-
-    plot_trajectory(trajectory, ax)
-
+        return []
+    
+    return trajectory
+    
+def build_ego_from_trajectory_data(trajectory):
     ego_x = trajectory[0].x
     ego_y = trajectory[0].y
+    
     heading = calculate_angle(trajectory)
     print("heading:", heading)
-    plot_car(ax, ego_x, ego_y, heading, True)
+    
+    return Car(
+        x=ego_x,
+        y=ego_y,
+        length=CAR_LENGTH,
+        width=CAR_WIDTH,
+        heading_angle_deg=heading,
+        is_ego=True,
+    )
+    
+def build_traffic_agents(vehicles_information, lane_numbers, scene):
+     # Collect car position data
+    xs = [vehicle.pos_x for vehicle in vehicles_information]
+    ys = [get_y_coordinate_from_lane_number(lane_numbers, vehicle.lane_number) 
+            for vehicle in vehicles_information]
+            
+    # Create cars objects
+    return [
+        Car(
+            x=x,
+            y=y,
+            length=CAR_LENGTH,
+            width=CAR_WIDTH,
+            heading_angle_deg=0,
+            is_ego=False,
+        )
+        for x, y in zip(xs, ys)
+        ]
+    
 
-
-def initialize_axis(ax, scenario,):
-    """
-    Initialize the axis to draw on: removes any previous content and sets the scale limits.
-        @param ax: axis to plot to
-        @param mlc_message: MLC message
-        @param min_x: the first X coordinate of the road section to be visualized
-        @param max_x: the last X coordinate of the road section to be visualized
-    """
-    ax.cla()
-
-    timestamp = scenario.header.stamp
-    ax.set_title(
-        f"Frame #{scenario.header.seq}, time: {timestamp.secs}.{timestamp.nsecs}")
-
-    ax.xaxis.set_major_locator(MultipleLocator(MAJOR_X_TICKS))
-    ax.yaxis.set_major_locator(MultipleLocator(MAJOR_Y_TICKS))
-    ax.xaxis.set_minor_locator(AutoMinorLocator(MINOR_X_TICKS))
-    ax.yaxis.set_minor_locator(AutoMinorLocator(MINOR_Y_TICKS))
-    ax.grid(True, color="grey")
-
-def reset_axis_size(ax, scenario, min_x, max_x):
-    ax.set_xlim(min_x, max_x)
-    ax.set_ylim(-0.5 * LANE_WIDTH, (scenario.number_of_lanes + 0.5)*LANE_WIDTH)
-    ax.axis("equal")
-
-
-# Main entry point
 def plot_mlc(mlc_message, ax):
-    """
-    Plots the content of a MultiLaneChange message.
-        @param mlc_message: MLC message
-        @param ax: axis to plot to
-    """
+
     (min_x, max_x) = get_min_max_x(mlc_message)
-    initialize_axis(ax, mlc_message.scenario_data)
-
-    # Add lanes and agents
-    plot_lanes(mlc_message.scenario_data.number_of_lanes, min_x, max_x, ax)
-    plot_vehicles(mlc_message.scenario_data, min_x, max_x, ax)
-    plot_ego(mlc_message, ax)
-
-    # Ensure plot ratio and avoid flickering
-    reset_axis_size(ax, mlc_message.scenario_data, min_x, max_x)
+    
+    scene = Scene2D(
+        ax=ax,
+        min_x=min_x,
+        max_x=max_x,
+        number_of_lanes=mlc_message.scenario_data.number_of_lanes,
+        title=__make_title(mlc_message.scenario_data),
+    )
+    
+    trajectory_data = __get_trajectory(mlc_message=mlc_message)    
+    
+    if len(trajectory_data):
+        
+        # Add trajectory to the scene
+        trajectory = Trajectory(
+            trajectory_data
+        )
+        scene.add(trajectory)
+    
+        # Add ego vehicle to the scene
+        ego = build_ego_from_trajectory_data(trajectory_data)
+        scene.add(ego)
+    
+    # Add other vehicles to the scene
+    vehicles_list = build_traffic_agents(
+            mlc_message.scenario_data.vehicles_information, 
+            mlc_message.scenario_data.number_of_lanes,
+            scene,
+        )
+    
+    #for vehicle in vehicles_list:
+    scene.add(*vehicles_list)
+    
+    # Draw the scene
+    scene.plot()
