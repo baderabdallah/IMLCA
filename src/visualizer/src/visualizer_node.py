@@ -20,7 +20,7 @@ class VisualizerNode():
 
         self._ax = self._fig.add_axes([0.04, 0.075, 0.94, 0.85], facecolor=STREET_COLOR)
 
-        self.mlc_sunscriber = rospy.Subscriber(
+        self.mlc_subscriber = rospy.Subscriber(
             mlc_topic, Mlc, self.mlc_callback)
 
         self.ani = FuncAnimation(self._fig, self.update_plot, cache_frame_data=False)

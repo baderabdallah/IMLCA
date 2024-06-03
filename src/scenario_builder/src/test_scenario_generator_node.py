@@ -14,16 +14,16 @@ class ScenarioGeneratorTestCase(unittest.TestCase):
 		self.is_scenario_data_received = True
 
 	def test_if_scenario_data_published(self):
-	    rospy.init_node('test_scenario_generator')
-	    rospy.Subscribe('mlc/scenario_information', ScenarioData, self.callback)
+		rospy.init_node('test_scenario_generator')
+		rospy.Subscribe('mlc/scenario_information', ScenarioData, self.callback)
 
-	    counter = 0
-	    while (not rospy.is_shutdown()) and (counter < 5) and (not self.is_scenario_data_received):
-		    print("Sleeping {}...".format(counter))
-		    #sleep (1)
-		    counter += 1
+		counter = 0
+		while (not rospy.is_shutdown()) and (counter < 5) and (not self.is_scenario_data_received):
+			print("Sleeping {}...".format(counter))
+			#sleep (1)
+			counter += 1
 
-	    self.assertTrue(self.is_scenario_data_received)
+		self.assertTrue(self.is_scenario_data_received)
 
 
 if __name__ == '__main__':
