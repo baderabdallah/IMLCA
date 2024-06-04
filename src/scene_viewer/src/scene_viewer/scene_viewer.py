@@ -47,6 +47,8 @@ class SceneViewer(ShowBase):
         self.win.requestProperties(properties)
         self._node_base_path = rospkg.RosPack().get_path("scene_viewer")
 
+        self.disableMouse()
+
         self.__load_textures()
         self.camera.setPos(0, 0, 100)
         self.camera.lookAt((0, 0, 0), (0, 0, 1))
@@ -96,44 +98,44 @@ class SceneViewer(ShowBase):
         road_chunk_offset = 0.5 * road_chunk_size[1] * (msg.scenario_data.number_of_lanes - 1)
 
         if msg.scenario_data.number_of_lanes == 1:
-            road_chunk = self.__create_plane("single_lane_road", road_chunk_size, None, (10, 1))
+            road_chunk = self.__create_plane("single_lane_road", road_chunk_size, None, (20, 1))
             road_chunk.setTexture(self.single_lane_road_chunk_texture, 1)
             road_chunk.reparentTo(self._road)
 
         elif msg.scenario_data.number_of_lanes > 1:
-            upper_lane_road_chunk = self.__create_plane("upper_lane_road_chunk", road_chunk_size, Vec3(0, road_chunk_offset, 0), None, (10, 1))
+            upper_lane_road_chunk = self.__create_plane("upper_lane_road_chunk", road_chunk_size, Vec3(0, road_chunk_offset, 0), None, (20, 1))
             upper_lane_road_chunk.setTexture(self.upper_lane_road_chunk_texture, 1)
             upper_lane_road_chunk.reparentTo(self._road)
             road_chunk_offset -= road_chunk_size[1]
 
             for i in range(msg.scenario_data.number_of_lanes - 2):
                 node_name = 'middle_lane_chunk_' + str(i)
-                middle_lane_road_chunk = self.__create_plane(node_name, road_chunk_size, Vec3(0, road_chunk_offset, 0), None, (10, 1))
+                middle_lane_road_chunk = self.__create_plane(node_name, road_chunk_size, Vec3(0, road_chunk_offset, 0), None, (20, 1))
                 middle_lane_road_chunk.setTexture(self.middle_lane_road_chunk_texture, 1)
                 middle_lane_road_chunk.reparentTo(self._road)
                 road_chunk_offset -= road_chunk_size[1]
 
-            lower_lane_road_chunk = self.__create_plane("lower_lane_road_chunk", road_chunk_size, Vec3(0, road_chunk_offset, 0), None, (10, 1))
+            lower_lane_road_chunk = self.__create_plane("lower_lane_road_chunk", road_chunk_size, Vec3(0, road_chunk_offset, 0), None, (20, 1))
             lower_lane_road_chunk.setTexture(self.lower_lane_road_chunk_texture, 1)
             lower_lane_road_chunk.reparentTo(self._road)
             # road_chunk_offset -= road_chunk_size[1]
 
     def __load_textures(self):
         self.upper_lane_road_chunk_texture = self.loader.loadTexture(os.path.join(self._node_base_path, "src/scene_viewer/textures/UpperLaneChunk.png"))
-        self.upper_lane_road_chunk_texture.setWrapU(Texture.WM_repeat)
-        self.upper_lane_road_chunk_texture.setWrapV(Texture.WM_repeat)
+        self.upper_lane_road_chunk_texture.setWrapU(Texture.WM_mirror)
+        self.upper_lane_road_chunk_texture.setWrapV(Texture.WM_mirror)
 
         self.middle_lane_road_chunk_texture = self.loader.loadTexture(os.path.join(self._node_base_path, "src/scene_viewer/textures/MiddleLaneChunk.png"))
-        self.middle_lane_road_chunk_texture.setWrapU(Texture.WM_repeat)
-        self.middle_lane_road_chunk_texture.setWrapV(Texture.WM_repeat)
+        self.middle_lane_road_chunk_texture.setWrapU(Texture.WM_mirror)
+        self.middle_lane_road_chunk_texture.setWrapV(Texture.WM_mirror)
         
         self.lower_lane_road_chunk_texture = self.loader.loadTexture(os.path.join(self._node_base_path, "src/scene_viewer/textures/LowerLaneChunk.png"))
-        self.lower_lane_road_chunk_texture.setWrapU(Texture.WM_repeat)
-        self.lower_lane_road_chunk_texture.setWrapV(Texture.WM_repeat)
+        self.lower_lane_road_chunk_texture.setWrapU(Texture.WM_mirror)
+        self.lower_lane_road_chunk_texture.setWrapV(Texture.WM_mirror)
         
         self.single_lane_road_chunk_texture = self.loader.loadTexture(os.path.join(self._node_base_path, "src/scene_viewer/textures/SingleLaneChunk.png"))
-        self.single_lane_road_chunk_texture.setWrapU(Texture.WM_repeat)
-        self.single_lane_road_chunk_texture.setWrapV(Texture.WM_repeat)
+        self.single_lane_road_chunk_texture.setWrapU(Texture.WM_mirror)
+        self.single_lane_road_chunk_texture.setWrapV(Texture.WM_mirror)
 
     def update(self, msg):
         if hasattr(self, 'latest_msg'):
