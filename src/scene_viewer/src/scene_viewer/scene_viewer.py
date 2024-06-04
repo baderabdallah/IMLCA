@@ -2,7 +2,9 @@ import os, rospkg
 
 from direct.gui.OnscreenText import OnscreenText
 from direct.showbase.ShowBase import ShowBase
+from direct.task import Task
 from lane_msgs.msg import Mlc
+from math import pi, sin, cos
 from panda3d.core import AmbientLight, DirectionalLight, Spotlight
 from panda3d.core import AntialiasAttrib, CullFaceAttrib, TransparencyAttrib, LightRampAttrib
 from panda3d.core import GeomNode, TextNode, NodePath, Geom, GeomLines, GeomPoints, GeomTriangles, GeomVertexData, GeomVertexFormat, GeomVertexWriter
@@ -36,6 +38,8 @@ from scene_viewer.helpers import *
 #         self.append_group('root')
 #         self.reset_camera(pos=(0, 0, 15), look_at=(0, 0, 0))
 
+loadPrcFileData("", "load-file-type p3assimp")
+
 class SceneViewer(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
@@ -46,6 +50,8 @@ class SceneViewer(ShowBase):
         
         self.win.requestProperties(properties)
         self._node_base_path = rospkg.RosPack().get_path("scene_viewer")
+        self._textures_base_path = os.path.join(self._node_base_path, "src/scene_viewer/textures/")
+        self._models_base_path = os.path.join(self._node_base_path, "src/scene_viewer/models/")
 
         self.disableMouse()
 
@@ -55,18 +61,26 @@ class SceneViewer(ShowBase):
         self._scene_root = self.render.attachNewNode('SceneRoot')
         self._road = self._scene_root.attachNewNode('Road')
 
-        # box = self.loader.loadModel(os.path.join(self._node_base_path, "src/scene_viewer/models/box.egg.pz"))
-        # box.reparentTo(self._scene_root)
-        # box.setPos((0, 0, 0))
-        # box.setTwoSided(True)
-
+        self._van = self.loader.loadModel(os.path.join(self._models_base_path, "Van.glb"))
+        self._van.reparentTo(self._scene_root)
+        self._van.setPos(Vec3(0, 0, 0))
+        # self._van.setP(90)
+        self._van.setH(90)
+        # self._van.setScale(Vec3(0.07, 0.07, 0.07))
+        self._van.setScale(Vec3(2, 2, 2))
         
 
 
 
+        self.taskMgr.add(self.__spinCameraTask, "SpinCameraTask")
 
-
-        
+    def __spinCameraTask(self, task):
+        angleDegrees = task.time * 6.0
+        angleRadians = angleDegrees * (pi / 180.0)
+        self.camera.setPos(20 * sin(angleRadians), -20 * cos(angleRadians), 3)
+        self.camera.setHpr(angleDegrees, 0, 0)
+        return Task.cont
+    
     def __create_plane(self, name, size=(1, 1), position=(0, 0, 0), rotation=None, texture_repeat=(1, 1)):
         """Create a plane node with at a given local position, with the supplied size and rotation.
 
@@ -92,50 +106,54 @@ class SceneViewer(ShowBase):
     def __create_road(self, msg):
         self._road.removeNode()
         self._road = self._scene_root.attachNewNode('Road')
+        self._center_lane_y_positions = []
         
         road_chunk_size = Vec2(100, 5)
         #road_chunk_offset = (msg.scenario_data.number_of_lanes / 2) * road_chunk_size[1] - road_chunk_size[1] / 2
         road_chunk_offset = 0.5 * road_chunk_size[1] * (msg.scenario_data.number_of_lanes - 1)
 
         if msg.scenario_data.number_of_lanes == 1:
-            road_chunk = self.__create_plane("single_lane_road", road_chunk_size, None, (20, 1))
+            road_chunk = self.__create_plane("single_lane_road", road_chunk_size, (0, 0, 0), None, (20, 1))
             road_chunk.setTexture(self.single_lane_road_chunk_texture, 1)
             road_chunk.reparentTo(self._road)
+            self._center_lane_y_positions.append(0)
 
         elif msg.scenario_data.number_of_lanes > 1:
             upper_lane_road_chunk = self.__create_plane("upper_lane_road_chunk", road_chunk_size, Vec3(0, road_chunk_offset, 0), None, (20, 1))
             upper_lane_road_chunk.setTexture(self.upper_lane_road_chunk_texture, 1)
             upper_lane_road_chunk.reparentTo(self._road)
+            self._center_lane_y_positions.append(road_chunk_offset)
             road_chunk_offset -= road_chunk_size[1]
 
             for i in range(msg.scenario_data.number_of_lanes - 2):
-                node_name = 'middle_lane_chunk_' + str(i)
-                middle_lane_road_chunk = self.__create_plane(node_name, road_chunk_size, Vec3(0, road_chunk_offset, 0), None, (20, 1))
+                middle_lane_road_chunk = self.__create_plane('middle_lane_chunk_' + str(i), road_chunk_size, Vec3(0, road_chunk_offset, 0), None, (20, 1))
                 middle_lane_road_chunk.setTexture(self.middle_lane_road_chunk_texture, 1)
                 middle_lane_road_chunk.reparentTo(self._road)
+                self._center_lane_y_positions.append(road_chunk_offset)
                 road_chunk_offset -= road_chunk_size[1]
 
             lower_lane_road_chunk = self.__create_plane("lower_lane_road_chunk", road_chunk_size, Vec3(0, road_chunk_offset, 0), None, (20, 1))
             lower_lane_road_chunk.setTexture(self.lower_lane_road_chunk_texture, 1)
             lower_lane_road_chunk.reparentTo(self._road)
+            self._center_lane_y_positions.append(road_chunk_offset)
             # road_chunk_offset -= road_chunk_size[1]
 
-    def __load_textures(self):
-        self.upper_lane_road_chunk_texture = self.loader.loadTexture(os.path.join(self._node_base_path, "src/scene_viewer/textures/UpperLaneChunk.png"))
-        self.upper_lane_road_chunk_texture.setWrapU(Texture.WM_mirror)
-        self.upper_lane_road_chunk_texture.setWrapV(Texture.WM_mirror)
+    def __display_cars(self, msg):
+        """ TODO """
 
-        self.middle_lane_road_chunk_texture = self.loader.loadTexture(os.path.join(self._node_base_path, "src/scene_viewer/textures/MiddleLaneChunk.png"))
-        self.middle_lane_road_chunk_texture.setWrapU(Texture.WM_mirror)
-        self.middle_lane_road_chunk_texture.setWrapV(Texture.WM_mirror)
-        
-        self.lower_lane_road_chunk_texture = self.loader.loadTexture(os.path.join(self._node_base_path, "src/scene_viewer/textures/LowerLaneChunk.png"))
-        self.lower_lane_road_chunk_texture.setWrapU(Texture.WM_mirror)
-        self.lower_lane_road_chunk_texture.setWrapV(Texture.WM_mirror)
-        
-        self.single_lane_road_chunk_texture = self.loader.loadTexture(os.path.join(self._node_base_path, "src/scene_viewer/textures/SingleLaneChunk.png"))
-        self.single_lane_road_chunk_texture.setWrapU(Texture.WM_mirror)
-        self.single_lane_road_chunk_texture.setWrapV(Texture.WM_mirror)
+    def __load_2d_texture(self, texture_file_name, texture_wrap_mode=(Texture.WM_repeat, Texture.WM_repeat), texture_filter=(Texture.FT_linear, Texture.FT_linear)):
+        texture = self.loader.loadTexture(os.path.join(self._textures_base_path, texture_file_name))
+        texture.setWrapU(texture_wrap_mode[0])
+        texture.setWrapV(texture_wrap_mode[1])
+        texture.setMagfilter(texture_filter[0])
+        texture.setMinfilter(texture_filter[1])
+        return texture
+
+    def __load_textures(self):
+        self.upper_lane_road_chunk_texture = self.__load_2d_texture("UpperLaneChunk.png", (Texture.WM_mirror, Texture.WM_mirror))
+        self.middle_lane_road_chunk_texture = self.__load_2d_texture("MiddleLaneChunk.png", (Texture.WM_mirror, Texture.WM_mirror))
+        self.lower_lane_road_chunk_texture = self.__load_2d_texture("LowerLaneChunk.png", (Texture.WM_mirror, Texture.WM_mirror))
+        self.single_lane_road_chunk_texture = self.__load_2d_texture("SingleLaneChunk.png", (Texture.WM_mirror, Texture.WM_mirror))
 
     def update(self, msg):
         if hasattr(self, 'latest_msg'):
@@ -144,6 +162,8 @@ class SceneViewer(ShowBase):
         else:
             self.__create_road(msg)
         
+        self.__display_cars(msg)
+
         self.latest_msg = msg
         #plot_mlc ...
         """ TODO """
