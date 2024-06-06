@@ -1,7 +1,7 @@
 #include "core/lane_change_trajectory_planner.h"
 #include "core/utils.h"
 #include <cmath>
-#include <iostream>
+// #include <iostream>
 Trajectory ComputeFollowLaneTrajectory(const Parameters& parameters)
 {
     float speed_m_s = parameters.ego_speed * 1000 /(60*60);
@@ -23,14 +23,23 @@ Trajectory ComputeFollowLaneTrajectory(const Parameters& parameters)
     return computedTrajectory;
 }
 
-Trajectory ComputeLaneChangeTrajectory(const VehicleState& ego_vehicle_state, const Parameters& parameters)
+Trajectory ComputeLaneChangeTrajectory(const VehicleState& ego_vehicle_state, const Parameters& parameters, bool is_lane_change_right)
 {
     float speed_m_s = parameters.ego_speed * 1000 /(60*60);
     double delta_time_sec_y = parameters.lane_change_longitudinal_distance / speed_m_s;
-    int number_of_steps = std::floor(delta_time_sec_y/parameters.cycle_time);
 
     auto y_start = ComputeLaneCenterYCoordinate(ego_vehicle_state.lane_id, parameters);
-    auto y_end = y_start - parameters.lane_width;
+    int number_of_steps = std::floor(delta_time_sec_y/parameters.cycle_time);
+    
+    auto y_end = y_start;
+    if (is_lane_change_right){
+        // right
+        y_end = y_end - parameters.lane_width;
+    }
+    else {
+        // left
+        y_end = y_end + parameters.lane_width;
+    }
 
     auto x_start = ego_vehicle_state.x_coordinate;
     auto x_end = x_start + parameters.lane_change_longitudinal_distance;
@@ -38,7 +47,6 @@ Trajectory ComputeLaneChangeTrajectory(const VehicleState& ego_vehicle_state, co
     Trajectory computedTrajectory{};
 
     auto distance_increment_x = (x_end - x_start) / number_of_steps;
-
     auto distance_increment_y = (y_end - y_start) / number_of_steps;
 
     for(int i = 0; i<=number_of_steps; i++)

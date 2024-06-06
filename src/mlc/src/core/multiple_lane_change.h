@@ -6,6 +6,7 @@
 #include "core/finite_state_machine.h"
 #include "core/parameters.h"
 #include <vector>
+#include <string>
 
 class MultipleLaneChange
 {
@@ -14,19 +15,24 @@ class MultipleLaneChange
 
     void SetObjects(const std::vector<VehicleState>& objects);
     void Step();
+    void SetKeyboardInput(const std::string);
+
     Trajectory GetEgoTrajectory() const;
 
   private:
     enum class MotionStates
     {
         kFollowLane,
-        kChangeLane
+        kChangeLaneLeft,
+        kChangeLaneRight
     };
 
     enum class MotionTransitions
     {
-        kStartLaneChange,
-        kLaneChangeCompleted
+        kStartLaneChangeRight,
+        kStartLaneChangeLeft,
+        kLaneChangeRightCompleted,
+        kLaneChangeLeftCompleted
     };
 
     using MotionStateMachine = FiniteStateMachine<MotionStates, MotionTransitions>;
@@ -34,18 +40,19 @@ class MultipleLaneChange
     void HandleFollowLaneState();
     bool EgoReachedTargetLane() const;
     void KeepFollowingLane();
-    void StartLaneChange(const Trajectory& lane_change_trajectory);
+    void StartLaneChange();
     void UpdateEgoState(const Trajectory& ego_trajectory);
-    void HandleLaneChangeState();
+    void HandleLaneChangeState(MultipleLaneChange::MotionStates motion_state);
     void ConsumeLaneChangeTrajectory();
     bool LaneChangeTrajectoryFullyConsumed() const;
-    void StartFollowingLane();
+    void StartFollowingLane(MultipleLaneChange::MotionStates motion_state);
 
     const Parameters parameters_{};
     std::vector<VehicleState> objects_{};
     Trajectory ego_trajectory_{};
     MotionStateMachine state_machine_{MotionStates::kFollowLane};
     VehicleState ego_state_{};
+    std::string kb_input_ = "";
 };
 
 #endif // MULTIPLE_LANE_CHANGE_H

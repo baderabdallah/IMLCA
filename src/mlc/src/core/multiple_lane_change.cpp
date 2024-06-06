@@ -7,11 +7,19 @@ MultipleLaneChange::MultipleLaneChange(const Parameters& parameters)
   : parameters_{parameters}
 {
     state_machine_.AddTransition(MotionStates::kFollowLane,
-                                 MotionTransitions::kStartLaneChange,
-                                 MotionStates::kChangeLane,
+                                 MotionTransitions::kStartLaneChangeRight,
+                                 MotionStates::kChangeLaneRight,
                                  [](){});
-    state_machine_.AddTransition(MotionStates::kChangeLane,
-                                 MotionTransitions::kLaneChangeCompleted,
+    state_machine_.AddTransition(MotionStates::kChangeLaneRight,
+                                 MotionTransitions::kLaneChangeRightCompleted,
+                                 MotionStates::kFollowLane,
+                                 [](){});
+    state_machine_.AddTransition(MotionStates::kFollowLane,
+                                 MotionTransitions::kStartLaneChangeLeft,
+                                 MotionStates::kChangeLaneLeft,
+                                 [](){});
+    state_machine_.AddTransition(MotionStates::kChangeLaneLeft,
+                                 MotionTransitions::kLaneChangeLeftCompleted,
                                  MotionStates::kFollowLane,
                                  [](){});
 }
@@ -21,16 +29,24 @@ void MultipleLaneChange::SetObjects(const std::vector<VehicleState>& objects)
     objects_ = objects;
 }
 
+void MultipleLaneChange::SetKeyboardInput(const std::string kb_input){
+    kb_input_ = kb_input;
+}
+
 void MultipleLaneChange::Step()
 {
+
     if (MotionStates::kFollowLane == state_machine_.GetCurrentState())
-    {
-        HandleFollowLaneState();
-    }
+        {
+            HandleFollowLaneState();
+        }
     else
-    {
-        HandleLaneChangeState();
-    }
+        {
+            HandleLaneChangeState(state_machine_.GetCurrentState());
+        }
+
+    // reset keyboard input after step is done
+    SetKeyboardInput("");
 }
 
 Trajectory MultipleLaneChange::GetEgoTrajectory() const
@@ -40,15 +56,12 @@ Trajectory MultipleLaneChange::GetEgoTrajectory() const
 
 void MultipleLaneChange::HandleFollowLaneState()
 {
-    const auto lane_change_trajectory{ComputeLaneChangeTrajectory(ego_state_, parameters_)};
-
-    if (EgoCollidesWithObject(ego_state_, lane_change_trajectory, objects_, parameters_) || EgoReachedTargetLane())
-    {
+    if (kb_input_ == "") {
         KeepFollowingLane();
     }
     else
     {
-        StartLaneChange(lane_change_trajectory);
+        StartLaneChange();
     }
 }
 
@@ -64,11 +77,23 @@ void MultipleLaneChange::KeepFollowingLane()
     UpdateEgoState(ego_trajectory_);
 }
 
-void MultipleLaneChange::StartLaneChange(const Trajectory& lane_change_trajectory)
+void MultipleLaneChange::StartLaneChange()
 {
-    ego_trajectory_ = lane_change_trajectory;
-    UpdateEgoState(ego_trajectory_);
-    state_machine_.HandleEvent(MotionTransitions::kStartLaneChange);
+    bool is_ego_in_left_most_lane = ego_state_.lane_id > 0;
+    bool is_ego_in_right_most_lane = ego_state_.lane_id < parameters_.number_of_lanes - 1;
+
+    if (kb_input_ == "Up Arrow" && is_ego_in_left_most_lane) {
+        const auto lane_change_trajectory{ComputeLaneChangeTrajectory(ego_state_, parameters_, false)};
+        ego_trajectory_ = lane_change_trajectory;
+        UpdateEgoState(ego_trajectory_);
+        state_machine_.HandleEvent(MotionTransitions::kStartLaneChangeLeft);
+    }
+    else if (kb_input_ == "Down Arrow" && is_ego_in_right_most_lane) {
+        const auto lane_change_trajectory{ComputeLaneChangeTrajectory(ego_state_, parameters_, true)};
+        ego_trajectory_ = lane_change_trajectory;
+        UpdateEgoState(ego_trajectory_);
+        state_machine_.HandleEvent(MotionTransitions::kStartLaneChangeRight);
+    }
 }
 
 void MultipleLaneChange::UpdateEgoState(const Trajectory& ego_trajectory)
@@ -76,13 +101,13 @@ void MultipleLaneChange::UpdateEgoState(const Trajectory& ego_trajectory)
     ego_state_.x_coordinate = ego_trajectory.at(0).x;
 }
 
-void MultipleLaneChange::HandleLaneChangeState()
+void MultipleLaneChange::HandleLaneChangeState(MultipleLaneChange::MotionStates motion_state)
 {
     ConsumeLaneChangeTrajectory();
 
     if (LaneChangeTrajectoryFullyConsumed())
     {
-        StartFollowingLane();
+        StartFollowingLane(motion_state);
     }
 }
 
@@ -97,8 +122,14 @@ bool MultipleLaneChange::LaneChangeTrajectoryFullyConsumed() const
     return (1 == ego_trajectory_.size());
 }
 
-void MultipleLaneChange::StartFollowingLane()
+void MultipleLaneChange::StartFollowingLane(MultipleLaneChange::MotionStates motion_state)
 {
-    ++ego_state_.lane_id;
-    state_machine_.HandleEvent(MotionTransitions::kLaneChangeCompleted);
+    if (motion_state == MotionStates::kChangeLaneRight) {
+        ++ego_state_.lane_id;
+        state_machine_.HandleEvent(MotionTransitions::kLaneChangeRightCompleted);
+    }
+    else if (motion_state == MotionStates::kChangeLaneLeft) {
+        --ego_state_.lane_id;
+        state_machine_.HandleEvent(MotionTransitions::kLaneChangeLeftCompleted);
+    }
 }
