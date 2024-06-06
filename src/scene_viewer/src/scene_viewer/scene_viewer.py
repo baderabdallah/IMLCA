@@ -1,3 +1,4 @@
+import json
 import os, rospkg
 
 from direct.gui.OnscreenText import OnscreenText
@@ -38,7 +39,7 @@ from scene_viewer.helpers import *
 #         self.append_group('root')
 #         self.reset_camera(pos=(0, 0, 15), look_at=(0, 0, 0))
 
-loadPrcFileData("", "load-file-type p3assimp")
+# loadPrcFileData("", "load-file-type p3assimp")
 
 class SceneViewer(ShowBase):
     def __init__(self):
@@ -61,13 +62,13 @@ class SceneViewer(ShowBase):
         self._scene_root = self.render.attachNewNode('SceneRoot')
         self._road = self._scene_root.attachNewNode('Road')
 
-        self._van = self.loader.loadModel(os.path.join(self._models_base_path, "Van.glb"))
+        self._van = self.loader.loadModel(os.path.join(self._models_base_path, "Xpander.glb"))
         self._van.reparentTo(self._scene_root)
         self._van.setPos(Vec3(0, 0, 0))
         # self._van.setP(90)
         self._van.setH(90)
-        # self._van.setScale(Vec3(0.07, 0.07, 0.07))
-        self._van.setScale(Vec3(2, 2, 2))
+        #self._van.setScale(Vec3(0.8, 0.8, 0.8))
+        self._van.setScale(Vec3(1.8, 1.8, 1.8))
         
 
 
@@ -154,6 +155,25 @@ class SceneViewer(ShowBase):
         self.middle_lane_road_chunk_texture = self.__load_2d_texture("MiddleLaneChunk.png", (Texture.WM_mirror, Texture.WM_mirror))
         self.lower_lane_road_chunk_texture = self.__load_2d_texture("LowerLaneChunk.png", (Texture.WM_mirror, Texture.WM_mirror))
         self.single_lane_road_chunk_texture = self.__load_2d_texture("SingleLaneChunk.png", (Texture.WM_mirror, Texture.WM_mirror))
+
+    def __load_3d_model(self, fileName, model_info):
+        model = self.loader.loadModel(os.path.join(self._models_base_path, fileName))
+        model.setPos(Vec3(0, 0, 0))
+        """ TODO """
+        # self._van.setPos(Vec3(0, 0, 0))
+        # # self._van.setP(90)
+        # self._van.setH(90)
+        # #self._van.setScale(Vec3(0.8, 0.8, 0.8))
+
+        return model
+
+    def __load_models(self):
+        """ TODO """
+
+    def __load_vehicles_info(self):
+        with open(os.path.join(self._models_base_path, "vehicles.json")) as json_file:
+            vehicle_json_data = json.load(json_file)
+            """ TODO """
 
     def update(self, msg):
         if hasattr(self, 'latest_msg'):
