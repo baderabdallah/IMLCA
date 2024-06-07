@@ -3,6 +3,7 @@
 
 #include "core/datatypes/trajectory.h"
 #include "core/datatypes/vehicle_state.h"
+#include "core/datatypes/ego_state.h"
 #include "core/finite_state_machine.h"
 #include "core/parameters.h"
 #include <vector>
@@ -11,13 +12,14 @@
 class MultipleLaneChange
 {
   public:
-    MultipleLaneChange(const Parameters& parameters);
+    MultipleLaneChange(const Parameters& parameters, const EgoState& ego_state);
 
     void SetObjects(const std::vector<VehicleState>& objects);
     void Step();
     void SetKeyboardInput(const std::string);
 
     Trajectory GetEgoTrajectory() const;
+    EgoState GetEgoState() const;
 
   private:
     enum class MotionStates
@@ -38,7 +40,6 @@ class MultipleLaneChange
     using MotionStateMachine = FiniteStateMachine<MotionStates, MotionTransitions>;
 
     void HandleFollowLaneState();
-    bool EgoReachedTargetLane() const;
     void KeepFollowingLane();
     void StartLaneChange();
     void UpdateEgoState(const Trajectory& ego_trajectory);
@@ -48,10 +49,10 @@ class MultipleLaneChange
     void StartFollowingLane(MultipleLaneChange::MotionStates motion_state);
 
     const Parameters parameters_{};
+    EgoState ego_state_{};
     std::vector<VehicleState> objects_{};
     Trajectory ego_trajectory_{};
     MotionStateMachine state_machine_{MotionStates::kFollowLane};
-    VehicleState ego_state_{};
     std::string kb_input_ = "";
 };
 

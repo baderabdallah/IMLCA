@@ -3,8 +3,8 @@
 
 #include "parameters.h"
 #include "datatypes/trajectory.h"
-#include "datatypes/vehicle_state.h"
+#include "datatypes/ego_state.h"
 
-Trajectory ComputeFollowLaneTrajectory(const VehicleState& ego_vehicle_state, const Parameters& parameters);
+Trajectory ComputeFollowLaneTrajectory(const EgoState& ego_state, const Parameters& parameters);
 
 #endif  // FOLLOW_LANE_TRAJECTORY_PLANNER_H

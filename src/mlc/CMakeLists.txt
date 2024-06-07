@@ -211,7 +211,6 @@ include_directories(src)
 
 add_executable(mlc_node
     src/mlc_node.cpp
-    src/core/collision_detector.cpp
     src/core/follow_lane_trajectory_planner.cpp
     src/core/lane_change_trajectory_planner.cpp
     src/core/multiple_lane_change.cpp

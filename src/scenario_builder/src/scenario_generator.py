@@ -3,7 +3,7 @@
 import rospy
 import std_msgs.msg
 from lane_msgs.msg import ScenarioData
-from lane_msgs.msg import VehiclePosition
+from lane_msgs.msg import VehicleInfo
 
 class ScenarioGenerator:
     def __init__(self, number_of_lanes, vehicles_initial_info):
@@ -14,7 +14,7 @@ class ScenarioGenerator:
     def get_vehicles_position(self):
         vehicle_current_positions = []
         for id, vehicle in enumerate(self.vehicle_info):
-            vehicle_position = VehiclePosition()
+            vehicle_position = VehicleInfo()
             vehicle_position.lane_number = vehicle["lane_number"]
             vehicle_position.pos_x = (self.counter * vehicle["speed"] * 0.1) + vehicle["initial_pos_x"]
             vehicle_position.id  = id
