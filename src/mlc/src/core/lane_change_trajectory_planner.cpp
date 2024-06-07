@@ -1,7 +1,7 @@
 #include "core/lane_change_trajectory_planner.h"
 #include "core/utils.h"
 #include <cmath>
-// #include <iostream>
+
 Trajectory ComputeFollowLaneTrajectory(const Parameters& parameters)
 {
     float speed_m_s = parameters.ego_speed * 1000 /(60*60);
@@ -23,7 +23,7 @@ Trajectory ComputeFollowLaneTrajectory(const Parameters& parameters)
     return computedTrajectory;
 }
 
-Trajectory ComputeLaneChangeTrajectory(const VehicleState& ego_vehicle_state, const Parameters& parameters, bool is_lane_change_right)
+Trajectory ComputeLaneChangeTrajectory(const VehicleState& ego_vehicle_state, const Parameters& parameters, LaneChangeCommandDirection lane_change_direction)
 {
     float speed_m_s = parameters.ego_speed * 1000 /(60*60);
     double delta_time_sec_y = parameters.lane_change_longitudinal_distance / speed_m_s;
@@ -32,7 +32,7 @@ Trajectory ComputeLaneChangeTrajectory(const VehicleState& ego_vehicle_state, co
     int number_of_steps = std::floor(delta_time_sec_y/parameters.cycle_time);
     
     auto y_end = y_start;
-    if (is_lane_change_right){
+    if (lane_change_direction == LaneChangeCommandDirection::kRight){
         // right
         y_end = y_end - parameters.lane_width;
     }
@@ -58,5 +58,4 @@ Trajectory ComputeLaneChangeTrajectory(const VehicleState& ego_vehicle_state, co
     }
 
     return computedTrajectory;
-
 }

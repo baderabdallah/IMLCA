@@ -215,5 +215,5 @@ add_executable(keyboard_listener
 )
 
 target_link_libraries(keyboard_listener
-  ${catkin_LIBRARIES}
+ PUBLIC ${catkin_LIBRARIES}
 )

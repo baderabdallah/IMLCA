@@ -83,13 +83,13 @@ void MultipleLaneChange::StartLaneChange()
     bool is_ego_in_right_most_lane = ego_state_.lane_id < parameters_.number_of_lanes - 1;
 
     if (kb_input_ == "Up Arrow" && is_ego_in_left_most_lane) {
-        const auto lane_change_trajectory{ComputeLaneChangeTrajectory(ego_state_, parameters_, false)};
+        const auto lane_change_trajectory{ComputeLaneChangeTrajectory(ego_state_, parameters_, LaneChangeCommandDirection::kLeft)};
         ego_trajectory_ = lane_change_trajectory;
         UpdateEgoState(ego_trajectory_);
         state_machine_.HandleEvent(MotionTransitions::kStartLaneChangeLeft);
     }
     else if (kb_input_ == "Down Arrow" && is_ego_in_right_most_lane) {
-        const auto lane_change_trajectory{ComputeLaneChangeTrajectory(ego_state_, parameters_, true)};
+        const auto lane_change_trajectory{ComputeLaneChangeTrajectory(ego_state_, parameters_, LaneChangeCommandDirection::kRight)};
         ego_trajectory_ = lane_change_trajectory;
         UpdateEgoState(ego_trajectory_);
         state_machine_.HandleEvent(MotionTransitions::kStartLaneChangeRight);
