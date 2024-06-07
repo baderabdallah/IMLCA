@@ -66,7 +66,7 @@ if __name__ == '__main__':
 
         number_of_lanes = 4
         vehicles_initial_info =  get_vehicles_initial_info()
-        ego_speed = 16.66
+        ego_speed = 16.66 # TODO: is this really used? See 90kph in mlc files.
         scenario_generator = ScenarioGenerator(number_of_lanes, vehicles_initial_info)
 
         scenario_node.publish_scenario(scenario_generator)
