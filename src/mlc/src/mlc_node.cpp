@@ -1,6 +1,7 @@
 #include <ros/ros.h>
 #include <lane_msgs/Mlc.h>
 #include <lane_msgs/ScenarioData.h>
+#include <std_msgs/String.h>
 #include "core/multiple_lane_change.h"
 #include "core/parameters.h"
 
@@ -44,6 +45,7 @@ class Mlc
 {
   private:
     ros::Subscriber scenario_subscriber_;
+    ros::Subscriber keyboard_subscriber_;
     ros::Publisher trajectory_publisher_;
     ros::Timer current_timer_;
 
@@ -52,7 +54,9 @@ class Mlc
     {
         float publish_frequency_ = 10.0;
 
-        scenario_subscriber_ = nh->subscribe("/mlc/scenario_information", 10, &Mlc::callbackSubscriber, this);
+        keyboard_subscriber_ = nh->subscribe("/keyboard_input", 10, &Mlc::callbackSubscriberKeyboard, this);
+        scenario_subscriber_ = nh->subscribe("/mlc/scenario_information", 10, &Mlc::callbackSubscriberScenario, this);
+        
         trajectory_publisher_ = nh->advertise<lane_msgs::Mlc>("/mlc/mlc_data", 10);
         current_timer_ = nh->createTimer(ros::Duration(1.0 / publish_frequency_), &Mlc::publish, this);
     }
@@ -66,13 +70,21 @@ class Mlc
         trajectory_publisher_.publish(msg);
     }
 
-    void callbackSubscriber(const lane_msgs::ScenarioData & msg)
+    void callbackSubscriberScenario(const lane_msgs::ScenarioData & msg)
     {
         input_msg_ = msg;
 
         const auto objects{ConvertToInternalType(msg)};
         multiple_lane_change_.SetObjects(objects);
         multiple_lane_change_.Step();
+    }
+    void callbackSubscriberKeyboard(const std_msgs::String::ConstPtr& msg)
+    {
+      ROS_INFO("Received key: %s", msg->data.c_str());
+
+      multiple_lane_change_.SetKeyboardInput(msg->data);
+      
+      return;
     }
 
 

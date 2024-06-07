@@ -1,0 +1,9 @@
+<launch>
+    <node pkg="scenario_builder"  type="scenario_generator_node.py" name="scenario_generator_node"/>
+
+    <node pkg="mlc"  type="mlc_node" name="mlc_node"/>
+
+    <node pkg="visualizer"  type="visualizer_node.py" name="visualizer_node"/>
+    
+    <node pkg="keyboard_listener"  type="keyboard_listener" name="keyboard_listener"/>
+</launch>
