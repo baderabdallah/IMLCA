@@ -4,7 +4,6 @@ import os, rospkg
 from direct.gui.OnscreenText import OnscreenText
 from direct.showbase.ShowBase import ShowBase
 from direct.task import Task
-from lane_msgs.msg import Mlc
 from math import pi, sin, cos
 from panda3d.core import AmbientLight, DirectionalLight, Spotlight
 from panda3d.core import AntialiasAttrib, CullFaceAttrib, TransparencyAttrib, LightRampAttrib
@@ -16,6 +15,7 @@ from panda3d.core import RenderState
 from panda3d.core import Vec2, Vec3, Vec4, Quat, Mat4, BitMask32
 from panda3d.core import WindowProperties
 from scene_viewer.constants import *
+from scene_viewer.vehicle_model_info import *
 
 from scene_viewer.objects.car import Car
 from scene_viewer.objects.trajectory import Trajectory
@@ -56,21 +56,25 @@ class SceneViewer(ShowBase):
 
         self.disableMouse()
 
-        self.__load_textures()
         self.camera.setPos(0, 0, 100)
         self.camera.lookAt((0, 0, 0), (0, 0, 1))
         self._scene_root = self.render.attachNewNode('SceneRoot')
         self._road = self._scene_root.attachNewNode('Road')
+        self._cars = self._scene_root.attachNewNode('Cars')
+        self._on_screen_cars = []
 
-        self._van = self.loader.loadModel(os.path.join(self._models_base_path, "Xpander.glb"))
-        self._van.reparentTo(self._scene_root)
-        self._van.setPos(Vec3(0, 0, 0))
-        # self._van.setP(90)
-        self._van.setH(90)
-        #self._van.setScale(Vec3(0.8, 0.8, 0.8))
-        self._van.setScale(Vec3(1.8, 1.8, 1.8))
+        self.__load_3d_models()
+        self.__load_textures()
+
+        # self._van = self.loader.loadModel(os.path.join(self._models_base_path, "Xpander.glb"))
+        # self._van.reparentTo(self._scene_root)
+        # self._van.setPos(Vec3(0, 0, 0))
+        # # self._van.setP(90)
+        # self._van.setH(90)
+        # #self._van.setScale(Vec3(0.8, 0.8, 0.8))
+        # self._van.setScale(Vec3(1.8, 1.8, 1.8))
         
-
+        # self._ego.copyTo(self._scene_root)
 
 
         self.taskMgr.add(self.__spinCameraTask, "SpinCameraTask")
@@ -139,8 +143,21 @@ class SceneViewer(ShowBase):
             self._center_lane_y_positions.append(road_chunk_offset)
             # road_chunk_offset -= road_chunk_size[1]
 
-    def __display_cars(self, msg):
-        """ TODO """
+    def __display_and_update_cars(self, msg):
+        if not msg.scenario_data.vehicles_information:
+            self._cars.removeNode()
+            self._cars = self._scene_root.attachNewNode('Cars')
+
+        for v in msg.scenario_data.vehicles_information:
+            """ TODO """
+
+
+
+
+
+
+
+
 
     def __load_2d_texture(self, texture_file_name, texture_wrap_mode=(Texture.WM_repeat, Texture.WM_repeat), texture_filter=(Texture.FT_linear, Texture.FT_linear)):
         texture = self.loader.loadTexture(os.path.join(self._textures_base_path, texture_file_name))
@@ -156,37 +173,58 @@ class SceneViewer(ShowBase):
         self.lower_lane_road_chunk_texture = self.__load_2d_texture("LowerLaneChunk.png", (Texture.WM_mirror, Texture.WM_mirror))
         self.single_lane_road_chunk_texture = self.__load_2d_texture("SingleLaneChunk.png", (Texture.WM_mirror, Texture.WM_mirror))
 
-    def __load_3d_model(self, fileName, model_info):
-        model = self.loader.loadModel(os.path.join(self._models_base_path, fileName))
-        model.setPos(Vec3(0, 0, 0))
-        """ TODO """
-        # self._van.setPos(Vec3(0, 0, 0))
-        # # self._van.setP(90)
-        # self._van.setH(90)
-        # #self._van.setScale(Vec3(0.8, 0.8, 0.8))
+    def __load_3d_model(self, model_info):
+        model_node = self.loader.loadModel(os.path.join(self._models_base_path, model_info.fileName))
+        model_node.setPos(Vec3(0, 0, 0))
+        model_node.setR(model_info.rotation.roll)
+        model_node.setP(model_info.rotation.pitch)
+        model_node.setH(model_info.rotation.yaw)
+        model_node.setScale(model_info.scale)
+        return model_node
 
-        return model
+    def __load_3d_models(self):
+        ego, vehicles = self.__load_vehicles_info()
+        
+        self._ego = self.__load_3d_model(ego)
+        self._vehicle_pool = []
 
-    def __load_models(self):
-        """ TODO """
+        for v in vehicles:
+            self._vehicle_pool.append(self.__load_3d_model(v))
 
     def __load_vehicles_info(self):
         with open(os.path.join(self._models_base_path, "vehicles.json")) as json_file:
             vehicle_json_data = json.load(json_file)
-            """ TODO """
 
+            ego = VehicleModelInfo()
+            vehicles = []
+
+            ego_json = vehicle_json_data["Ego"]
+            ego.fileName = ego_json["fileName"]
+            ego.rotation.roll = float(ego_json["rotation"]["roll"])
+            ego.rotation.pitch = float(ego_json["rotation"]["pitch"])
+            ego.rotation.yaw = float(ego_json["rotation"]["yaw"])
+            ego.scale = Vec3(float(ego_json["scale"]["x"]), float(ego_json["scale"]["y"]), float(ego_json["scale"]["z"]))
+
+            for vehicle_json in vehicle_json_data["Vehicles"]:
+                v = VehicleModelInfo()
+                v.fileName = vehicle_json["fileName"]
+                v.rotation.roll = float(vehicle_json["rotation"]["roll"])
+                v.rotation.pitch = float(vehicle_json["rotation"]["pitch"])
+                v.rotation.yaw = float(vehicle_json["rotation"]["yaw"])
+                v.scale = Vec3(float(vehicle_json["scale"]["x"]), float(vehicle_json["scale"]["y"]), float(vehicle_json["scale"]["z"]))
+                vehicles.append(v)
+            
+            return [ego, vehicles]
+    
     def update(self, msg):
         if hasattr(self, 'latest_msg'):
             if self.latest_msg.scenario_data.number_of_lanes != msg.scenario_data.number_of_lanes:
                 self.__create_road(msg)
         else:
             self.__create_road(msg)
-        
-        self.__display_cars(msg)
 
+        self.__display_and_update_cars(msg)        
         self.latest_msg = msg
-        #plot_mlc ...
-        """ TODO """
 
     def __make_plane(self, size=(1.0, 1.0), texture_repeat=(1, 1)):
         """Make a plane geometry.
