@@ -49,7 +49,7 @@ Trajectory ComputeLaneChangeTrajectory(const VehicleState& ego_vehicle_state, co
     auto distance_increment_x = (x_end - x_start) / number_of_steps;
     auto distance_increment_y = (y_end - y_start) / number_of_steps;
 
-    for(int i = 0; i<=number_of_steps; i++)
+    for(int i = 1; i<number_of_steps; i++)
     {
         TrajectoryPoint trajectory_point{};
         trajectory_point.x = x_start + i * distance_increment_x;
