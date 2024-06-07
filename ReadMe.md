@@ -1,5 +1,5 @@
 # Multi Lane Change Assist
-![Alt Text](description/multi_lane_change_assistant_result.gif)
+![Alt Text](description/multi_lane_manual_control.mp4)
 ## Requirements
 - Ubuntu 20.04
 - ROS Noetic
