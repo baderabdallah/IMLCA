@@ -1,13 +1,13 @@
 from scene_viewer.constants import *
 import math
 
-def get_y_coordinate_from_lane_number(number_of_lanes, lane_number):
+def get_y_coordinate_from_lane_number(number_of_lanes, lane_number, lane_width=LANE_WIDTH):
     """
     Transforms a lane number into a valid Y coordinate, assuming that the vehicle is located at the center of the lane
         @param scenario: scenario data
-        @param lane_number: Lane_number starting from 0 to (NUMBER_OF_LANES-1)
+        @param lane_number: Lane_number starting from 0 to (NUMBER_OF_LANES - 1)
     """
-    return ((number_of_lanes - lane_number - 0.5) * LANE_WIDTH)
+    return ((number_of_lanes - lane_number - 0.5) * lane_width)
 
 def calculate_angle(trajectory):
     """
@@ -23,4 +23,5 @@ def calculate_angle(trajectory):
     dy = point1.y - point0.y
 
     print(f"(dx, dy): {dx}, {dy}")
+
     return math.degrees(math.atan2(dy, dx))

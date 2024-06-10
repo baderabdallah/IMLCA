@@ -1,5 +1,6 @@
 import json
 import os, rospkg
+import random
 
 from direct.gui.OnscreenText import OnscreenText
 from direct.showbase.ShowBase import ShowBase
@@ -15,31 +16,13 @@ from panda3d.core import RenderState
 from panda3d.core import Vec2, Vec3, Vec4, Quat, Mat4, BitMask32
 from panda3d.core import WindowProperties
 from scene_viewer.constants import *
+from scene_viewer.helpers import *
 from scene_viewer.vehicle_model_info import *
 
 from scene_viewer.objects.car import Car
 from scene_viewer.objects.trajectory import Trajectory
 from scene_viewer.objects.scene2D import Scene2D
-from scene_viewer.helpers import *
 
-
-#from panda3d_viewer.geometry import *
-
-
-# class SceneViewer(Viewer):
-#     def __init__(self):
-#         self.node_base_path = rospkg.RosPack().get_path("scene_viewer")
-
-#         config = ViewerConfig()
-#         config.set_window_size(1600, 900)
-#         config.enable_antialiasing(True, multisamples=4)
-
-#         Viewer.__init__(self, window_type='onscreen', window_title=FIGURE_TITLE, config=config)
-
-#         self.append_group('root')
-#         self.reset_camera(pos=(0, 0, 15), look_at=(0, 0, 0))
-
-# loadPrcFileData("", "load-file-type p3assimp")
 
 class SceneViewer(ShowBase):
     def __init__(self):
@@ -56,36 +39,30 @@ class SceneViewer(ShowBase):
 
         self.disableMouse()
 
-        self.camera.setPos(0, 0, 100)
+        self.camera.setPos(0, 0, 50)
         self.camera.lookAt((0, 0, 0), (0, 0, 1))
         self._scene_root = self.render.attachNewNode('SceneRoot')
         self._road = self._scene_root.attachNewNode('Road')
         self._cars = self._scene_root.attachNewNode('Cars')
-        self._on_screen_cars = []
+        self._on_screen_cars = dict()
+        self._on_screen_ego = None
 
         self.__load_3d_models()
         self.__load_textures()
 
-        # self._van = self.loader.loadModel(os.path.join(self._models_base_path, "Xpander.glb"))
-        # self._van.reparentTo(self._scene_root)
-        # self._van.setPos(Vec3(0, 0, 0))
-        # # self._van.setP(90)
-        # self._van.setH(90)
-        # #self._van.setScale(Vec3(0.8, 0.8, 0.8))
-        # self._van.setScale(Vec3(1.8, 1.8, 1.8))
-        
-        # self._ego.copyTo(self._scene_root)
+    #     self.taskMgr.add(self.__spinCameraTask, "SpinCameraTask")
 
-
-        self.taskMgr.add(self.__spinCameraTask, "SpinCameraTask")
-
-    def __spinCameraTask(self, task):
-        angleDegrees = task.time * 6.0
-        angleRadians = angleDegrees * (pi / 180.0)
-        self.camera.setPos(20 * sin(angleRadians), -20 * cos(angleRadians), 3)
-        self.camera.setHpr(angleDegrees, 0, 0)
-        return Task.cont
+    # def __spinCameraTask(self, task):
+    #     angleDegrees = task.time * 6.0
+    #     angleRadians = angleDegrees * (pi / 180.0)
+    #     self.camera.setPos(20 * sin(angleRadians), -20 * cos(angleRadians), 3)
+    #     self.camera.setHpr(angleDegrees, 0, 0)
+    #     return Task.cont
     
+    def __move_camera(self, target=Vec3()):
+        self.camera.setPos(target.x, self._road_center_y_position, 50)
+        self.camera.lookAt((target.x, self._road_center_y_position, 0), (0, 0, 1))
+
     def __create_plane(self, name, size=(1, 1), position=(0, 0, 0), rotation=None, texture_repeat=(1, 1)):
         """Create a plane node with at a given local position, with the supplied size and rotation.
 
@@ -111,53 +88,89 @@ class SceneViewer(ShowBase):
     def __create_road(self, msg):
         self._road.removeNode()
         self._road = self._scene_root.attachNewNode('Road')
-        self._center_lane_y_positions = []
+        self._lane_center_y_positions = []
+        self._road_center_y_position = 0
         
-        road_chunk_size = Vec2(100, 5)
-        #road_chunk_offset = (msg.scenario_data.number_of_lanes / 2) * road_chunk_size[1] - road_chunk_size[1] / 2
-        road_chunk_offset = 0.5 * road_chunk_size[1] * (msg.scenario_data.number_of_lanes - 1)
+        road_chunk_size = Vec2(500, LANE_WIDTH)
+        plane_texture_repeat = Vec2(road_chunk_size.x / 5.0, 1)
 
         if msg.scenario_data.number_of_lanes == 1:
-            road_chunk = self.__create_plane("single_lane_road", road_chunk_size, (0, 0, 0), None, (20, 1))
+            y_coord = get_y_coordinate_from_lane_number(1, 0, road_chunk_size.y)
+            road_chunk = self.__create_plane("single_lane_road", road_chunk_size, (0, y_coord, 0), None, plane_texture_repeat)
             road_chunk.setTexture(self.single_lane_road_chunk_texture, 1)
             road_chunk.reparentTo(self._road)
-            self._center_lane_y_positions.append(0)
+            self._lane_center_y_positions.append(y_coord)
+            self._road_center_y_position = y_coord
 
         elif msg.scenario_data.number_of_lanes > 1:
-            upper_lane_road_chunk = self.__create_plane("upper_lane_road_chunk", road_chunk_size, Vec3(0, road_chunk_offset, 0), None, (20, 1))
+            y_coord = get_y_coordinate_from_lane_number(msg.scenario_data.number_of_lanes, 0, road_chunk_size.y)
+            self._road_center_y_position = y_coord - road_chunk_size.y * 0.5
+            upper_lane_road_chunk = self.__create_plane("upper_lane_road_chunk", road_chunk_size, Vec3(0, y_coord, 0), None, plane_texture_repeat)
             upper_lane_road_chunk.setTexture(self.upper_lane_road_chunk_texture, 1)
             upper_lane_road_chunk.reparentTo(self._road)
-            self._center_lane_y_positions.append(road_chunk_offset)
-            road_chunk_offset -= road_chunk_size[1]
+            self._lane_center_y_positions.append(y_coord)
 
             for i in range(msg.scenario_data.number_of_lanes - 2):
-                middle_lane_road_chunk = self.__create_plane('middle_lane_chunk_' + str(i), road_chunk_size, Vec3(0, road_chunk_offset, 0), None, (20, 1))
+                y_coord = get_y_coordinate_from_lane_number(msg.scenario_data.number_of_lanes, i + 1, road_chunk_size.y)
+                middle_lane_road_chunk = self.__create_plane('middle_lane_chunk_' + str(i), road_chunk_size, Vec3(0, y_coord, 0), None, plane_texture_repeat)
                 middle_lane_road_chunk.setTexture(self.middle_lane_road_chunk_texture, 1)
                 middle_lane_road_chunk.reparentTo(self._road)
-                self._center_lane_y_positions.append(road_chunk_offset)
-                road_chunk_offset -= road_chunk_size[1]
+                self._lane_center_y_positions.append(y_coord)
 
-            lower_lane_road_chunk = self.__create_plane("lower_lane_road_chunk", road_chunk_size, Vec3(0, road_chunk_offset, 0), None, (20, 1))
+            y_coord = get_y_coordinate_from_lane_number(msg.scenario_data.number_of_lanes, msg.scenario_data.number_of_lanes - 1, road_chunk_size.y)
+            self._road_center_y_position = (self._road_center_y_position + (y_coord + road_chunk_size.y * 0.5)) * 0.5
+            lower_lane_road_chunk = self.__create_plane("lower_lane_road_chunk", road_chunk_size, Vec3(0, y_coord, 0), None, plane_texture_repeat)
             lower_lane_road_chunk.setTexture(self.lower_lane_road_chunk_texture, 1)
             lower_lane_road_chunk.reparentTo(self._road)
-            self._center_lane_y_positions.append(road_chunk_offset)
-            # road_chunk_offset -= road_chunk_size[1]
+            self._lane_center_y_positions.append(y_coord)
 
     def __display_and_update_cars(self, msg):
         if not msg.scenario_data.vehicles_information:
             self._cars.removeNode()
             self._cars = self._scene_root.attachNewNode('Cars')
+            self._on_screen_cars.clear()
+
+        received_car_ids = dict()
+        cars_to_remove = []
+
+        if not self._on_screen_ego:
+            self._on_screen_ego = self._ego.copyTo(self._cars)
+
+        ego_trajectory = self.__get_trajectory(msg)
+
+        if ego_trajectory:
+            ego_position = Vec3(ego_trajectory[0].x, ego_trajectory[0].y, 0)
+            ego_rotation_yaw = calculate_angle(ego_trajectory)
+            self._on_screen_ego.reparentTo(self._cars)
+            self._on_screen_ego.setPos(ego_position)
+            self._on_screen_ego.setHpr(self._ego.getHpr() + Vec3(ego_rotation_yaw, 0, 0))
+            self.__move_camera(ego_position)
+        else:
+            self._on_screen_ego.detachNode()
 
         for v in msg.scenario_data.vehicles_information:
-            """ TODO """
+            received_car_ids[v.id] = v.id
+            car = self._on_screen_cars.get(v.id)
 
+            if not car:
+                car = self._vehicle_pool[random.randrange(0, len(self._vehicle_pool))].copyTo(self._cars)
+                self._on_screen_cars[v.id] = car
 
+            car.setPos(Vec3(v.pos_x, self._lane_center_y_positions[v.lane_number], 0))
+        
+        for k in self._on_screen_cars.keys():
+            if not received_car_ids.get(k):
+                self._on_screen_cars.get(k).removeNode()
+                cars_to_remove.append(k)
 
+        for c in cars_to_remove:
+            self._on_screen_cars.pop(c)
 
-
-
-
-
+        # uint32 lane_number
+        # uint32 id
+        # float64 pos_x
+        # float64 velocity_x
+        # print("ON SCREEN CARS = " + str(len(self._on_screen_cars)) + ", INFO = " + str(len(msg.scenario_data.vehicles_information)))
 
     def __load_2d_texture(self, texture_file_name, texture_wrap_mode=(Texture.WM_repeat, Texture.WM_repeat), texture_filter=(Texture.FT_linear, Texture.FT_linear)):
         texture = self.loader.loadTexture(os.path.join(self._textures_base_path, texture_file_name))
@@ -261,6 +274,18 @@ class SceneViewer(ShowBase):
 
         return geom
 
+    def __get_trajectory(self, mlc_message):
+        trajectory = mlc_message.ego_vehicle_trajectory.trajectory
+        
+        if not trajectory:
+            header = mlc_message.scenario_data.header
+            timestamp = header.stamp
+            print(
+                f"* Message #{header.seq} contains an empty trajectory (at {timestamp.secs}.{timestamp.nsecs} seconds)")
+            return []
+        
+        return trajectory
+
 ###########################################################
 
 def get_min_max_x(mlc_message):
@@ -296,19 +321,7 @@ def get_min_max_x(mlc_message):
 def __make_title(scenario):
     timestamp = scenario.header.stamp
     return f"Frame #{scenario.header.seq}, time: {timestamp.secs}.{timestamp.nsecs}"
-
-def __get_trajectory(mlc_message):
-    trajectory = mlc_message.ego_vehicle_trajectory.trajectory
-    
-    if not trajectory:
-        header = mlc_message.scenario_data.header
-        timestamp = header.stamp
-        print(
-            f"* Message #{header.seq} contains an empty trajectory (at {timestamp.secs}.{timestamp.nsecs} seconds)")
-        return []
-    
-    return trajectory
-    
+   
 def build_ego_from_trajectory_data(trajectory):
     ego_x = trajectory[0].x
     ego_y = trajectory[0].y
