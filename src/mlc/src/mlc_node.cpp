@@ -5,7 +5,7 @@
 #include <std_msgs/String.h>
 #include "core/multiple_lane_change.h"
 #include "core/parameters.h"
-#include <iostream>
+// #include <iostream>
 
 
 std::vector<VehicleState> ConvertToInternalType(const lane_msgs::ScenarioData & msg)

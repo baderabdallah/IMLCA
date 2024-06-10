@@ -1,5 +1,4 @@
 #include "core/utils.h"
-#include <iostream>
 
 double ComputeLaneCenterYCoordinate(const int lane_id, const Parameters& parameters)
 {
@@ -8,7 +7,6 @@ double ComputeLaneCenterYCoordinate(const int lane_id, const Parameters& paramet
 
 double ComputeEgoDistanceIncrement(const Parameters& parameters, const EgoState& ego_state)
 {
-    std::cout << "Speed:" << ego_state.speed << std::endl;
     return (ego_state.speed * 1000.0 / 3600.0 * parameters.cycle_time);
 }
 
