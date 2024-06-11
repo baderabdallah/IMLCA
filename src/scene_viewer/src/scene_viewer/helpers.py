@@ -22,6 +22,6 @@ def calculate_angle(trajectory):
     dx = point1.x - point0.x
     dy = point1.y - point0.y
 
-    print(f"(dx, dy): {dx}, {dy}")
+    # print(f"(dx, dy): {dx}, {dy}")
 
     return math.degrees(math.atan2(dy, dx))
