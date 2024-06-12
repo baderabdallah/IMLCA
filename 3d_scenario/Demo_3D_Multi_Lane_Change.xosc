@@ -35,10 +35,10 @@
     <ParameterDeclaration name="AdersaryLaneChangeTime2" parameterType="integer" value="13"/>
 
     <ParameterDeclaration name="AdersaryLaneChangeDirection3" parameterType="integer" value="-1"/>
-    <ParameterDeclaration name="AdersaryLaneChangeTime3" parameterType="integer" value="14"/>
+    <ParameterDeclaration name="AdersaryLaneChangeTime3" parameterType="integer" value="20"/>
 
     <ParameterDeclaration name="AdersaryLaneChangeDirection4" parameterType="integer" value="1"/>
-    <ParameterDeclaration name="AdersaryLaneChangeTime4" parameterType="integer" value="25"/>
+    <ParameterDeclaration name="AdersaryLaneChangeTime4" parameterType="integer" value="30"/>
 
   </ParameterDeclarations>
 
