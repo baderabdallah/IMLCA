@@ -10,17 +10,26 @@
     <ParameterDeclaration name="Car2InitSpeed_mps" parameterType="double" value="13.0"/>
     <ParameterDeclaration name="Car2LaneSelection" parameterType="integer" value="2"/>
 
-    <ParameterDeclaration name="Car3InitDistance_m" parameterType="double" value="150"/>
-    <ParameterDeclaration name="Car3InitSpeed_mps" parameterType="double" value="150"/>
+    <ParameterDeclaration name="Car3InitDistance_m" parameterType="double" value="180"/>
+    <ParameterDeclaration name="Car3InitSpeed_mps" parameterType="double" value="13.0"/>
     <ParameterDeclaration name="Car3LaneSelection" parameterType="integer" value="2"/>
 
-    <ParameterDeclaration name="Car4InitDistance_m" parameterType="double" value="160"/>
+    <ParameterDeclaration name="Car4InitDistance_m" parameterType="double" value="190"/>
     <ParameterDeclaration name="Car4InitSpeed_mps" parameterType="double" value="13.0"/>
     <ParameterDeclaration name="Car4LaneSelection" parameterType="integer" value="1"/>
 
-    <ParameterDeclaration name="Car5InitDistance_m" parameterType="double" value="90"/>
-    <ParameterDeclaration name="Car5InitSpeed_mps" parameterType="double" value="16.7"/>
-    <ParameterDeclaration name="Car5LaneSelection" parameterType="integer" value="-1"/>
+    <ParameterDeclaration name="Car5InitDistance_m" parameterType="double" value="80"/>
+    <ParameterDeclaration name="Car5InitSpeed_mps" parameterType="double" value="14.5"/>
+    <ParameterDeclaration name="Car5LaneSelection" parameterType="integer" value="0"/>  
+
+    <ParameterDeclaration name="Car6InitDistance_m" parameterType="double" value="150"/>
+    <ParameterDeclaration name="Car6InitSpeed_mps" parameterType="double" value="13.0"/>
+    <ParameterDeclaration name="Car6LaneSelection" parameterType="integer" value="0"/>
+
+    <ParameterDeclaration name="Car7InitDistance_m" parameterType="double" value="100"/>
+    <ParameterDeclaration name="Car7InitSpeed_mps" parameterType="double" value="14.5"/>
+    <ParameterDeclaration name="Car7LaneSelection" parameterType="integer" value="-1"/>  
+
 
     <ParameterDeclaration name="AdversaryInitDistance_m" parameterType="double" value="30.0"/>
     <ParameterDeclaration name="AdersaryLaneSelection" parameterType="integer" value="2"/>
@@ -35,7 +44,7 @@
     <ParameterDeclaration name="AdersaryLaneChangeTime2" parameterType="integer" value="13"/>
 
     <ParameterDeclaration name="AdersaryLaneChangeDirection3" parameterType="integer" value="-1"/>
-    <ParameterDeclaration name="AdersaryLaneChangeTime3" parameterType="integer" value="20"/>
+    <ParameterDeclaration name="AdersaryLaneChangeTime3" parameterType="integer" value="16"/>
 
     <ParameterDeclaration name="AdersaryLaneChangeDirection4" parameterType="integer" value="1"/>
     <ParameterDeclaration name="AdersaryLaneChangeTime4" parameterType="integer" value="30"/>
@@ -104,6 +113,14 @@
     </ScenarioObject>
     
     <ScenarioObject name="car5">
+            <CatalogReference catalogName="VehicleCatalog" entryName="vehicle.tesla.model3"></CatalogReference>
+    </ScenarioObject>
+
+    <ScenarioObject name="car6">
+            <CatalogReference catalogName="VehicleCatalog" entryName="vehicle.tesla.model3"></CatalogReference>
+    </ScenarioObject>
+
+    <ScenarioObject name="car7">
             <CatalogReference catalogName="VehicleCatalog" entryName="vehicle.tesla.model3"></CatalogReference>
     </ScenarioObject>
 
@@ -287,6 +304,51 @@
           </PrivateAction>
         </Private>
 
+
+        <Private entityRef="car6">
+          <PrivateAction>
+            <TeleportAction>
+              <Position>
+                <RelativeLanePosition entityRef="hero" dLane="$Car6LaneSelection" ds="$Car6InitDistance_m" offset="0">
+                  <Orientation type="relative"/>
+                </RelativeLanePosition>
+              </Position>
+            </TeleportAction>
+          </PrivateAction>
+          <PrivateAction>
+            <LongitudinalAction>
+              <SpeedAction>
+                <SpeedActionDynamics dynamicsShape="step" dynamicsDimension="time" value="0.1" />
+                <SpeedActionTarget>
+                  <AbsoluteTargetSpeed value="$Car6InitSpeed_mps" />
+                </SpeedActionTarget>
+              </SpeedAction>
+            </LongitudinalAction>
+          </PrivateAction>
+        </Private>
+
+        <Private entityRef="car7">
+          <PrivateAction>
+            <TeleportAction>
+              <Position>
+                <RelativeLanePosition entityRef="hero" dLane="$Car7LaneSelection" ds="$Car7InitDistance_m" offset="0">
+                  <Orientation type="relative"/>
+                </RelativeLanePosition>
+              </Position>
+            </TeleportAction>
+          </PrivateAction>
+          <PrivateAction>
+            <LongitudinalAction>
+              <SpeedAction>
+                <SpeedActionDynamics dynamicsShape="step" dynamicsDimension="time" value="0.1" />
+                <SpeedActionTarget>
+                  <AbsoluteTargetSpeed value="$Car7InitSpeed_mps" />
+                </SpeedActionTarget>
+              </SpeedAction>
+            </LongitudinalAction>
+          </PrivateAction>
+        </Private>
+
       </Actions>
     </Init>
     <Story name="MyStory">
@@ -348,6 +410,7 @@
               </StartTrigger>
             </Event>
 
+
             <Event name="AdversaryChangesLane1" priority="overwrite">
               <Action name="AdversaryChangesLane1">
                 <PrivateAction>
@@ -371,6 +434,36 @@
                 </ConditionGroup>
               </StartTrigger>
             </Event>
+
+
+
+
+
+            <Event name="SpeedChange" priority="overwrite">
+              <Action name="SpeedChangeAction">
+                <PrivateAction>
+                  <LongitudinalAction>
+                    <SpeedAction>
+                      <SpeedActionDynamics dynamicsShape="step" dynamicsDimension="time" value="0.5" />
+                      <SpeedActionTarget>
+                        <AbsoluteTargetSpeed value="25.0"/>
+                      </SpeedActionTarget>
+                    </SpeedAction>
+                  </LongitudinalAction>
+                </PrivateAction>
+              </Action>
+              <StartTrigger>
+                <ConditionGroup>
+                  <Condition name="AfterAdversaryAccelerates" delay="0" conditionEdge="rising">
+                    <ByValueCondition>
+                      <SimulationTimeCondition value="10.0" rule="greaterThan"/>
+                    </ByValueCondition>
+                  </Condition>
+                </ConditionGroup>
+              </StartTrigger>
+            </Event>
+
+
 
             <Event name="AdversaryChangesLane2" priority="overwrite">
               <Action name="AdversaryChangesLane2">
