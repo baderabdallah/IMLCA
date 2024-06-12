@@ -68,7 +68,7 @@ class SceneViewer(ShowBase):
                 self._rebuild_road = False
                 self.__create_road(self.latest_msg)
             else:
-                self.__adjust_road()
+                self.__adjust_road(self.latest_msg)
 
             self.__display_and_update_cars(self.latest_msg)
             
@@ -107,49 +107,78 @@ class SceneViewer(ShowBase):
         self._road_chunks.append(self._road.attachNewNode('RoadChunk_0'))
         self._lane_center_y_positions = []
         self._road_center_y_position = 0
-        self._current_road_chunk_index = 0
+        self._current_road_chunk_index = 1
         
-        road_chunk_size = Vec2(500, LANE_WIDTH)
-        plane_texture_repeat = Vec2(road_chunk_size.x / 5.0, 1)
+        self._road_chunk_size = Vec2(500, LANE_WIDTH)
+        self._half_road_chunk_size = self._road_chunk_size * 0.5
+        plane_texture_repeat = Vec2(self._road_chunk_size.x / 5.0, 1)
+        
+        if msg.ego_vehicle_trajectory.trajectory:
+            x_coord = msg.ego_vehicle_trajectory.trajectory[0].x
+        else:
+            x_coord = 0
 
         if msg.scenario_data.number_of_lanes == 1:
-            y_coord = get_y_coordinate_from_lane_number(1, 0, road_chunk_size.y)
-            road_chunk = self.__create_plane("single_lane_road", road_chunk_size, (0, y_coord, 0), None, plane_texture_repeat)
+            y_coord = get_y_coordinate_from_lane_number(1, 0, self._road_chunk_size.y)
+            road_chunk = self.__create_plane("single_lane_road", self._road_chunk_size, (0, y_coord, 0), None, plane_texture_repeat)
             road_chunk.setTexture(self.single_lane_road_chunk_texture, 1)
             road_chunk.reparentTo(self._road_chunks[0])
             self._lane_center_y_positions.append(y_coord)
             self._road_center_y_position = y_coord
 
         elif msg.scenario_data.number_of_lanes > 1:
-            y_coord = get_y_coordinate_from_lane_number(msg.scenario_data.number_of_lanes, 0, road_chunk_size.y)
-            self._road_center_y_position = y_coord - road_chunk_size.y * 0.5
-            upper_lane_road_chunk = self.__create_plane("upper_lane_road_chunk", road_chunk_size, Vec3(0, y_coord, 0), None, plane_texture_repeat)
+            y_coord = get_y_coordinate_from_lane_number(msg.scenario_data.number_of_lanes, 0, self._road_chunk_size.y)
+            self._road_center_y_position = y_coord - self._road_chunk_size.y * 0.5
+            upper_lane_road_chunk = self.__create_plane("upper_lane_road_chunk", self._road_chunk_size, Vec3(0, y_coord, 0), None, plane_texture_repeat)
             upper_lane_road_chunk.setTexture(self.upper_lane_road_chunk_texture, 1)
             upper_lane_road_chunk.reparentTo(self._road_chunks[0])
             self._lane_center_y_positions.append(y_coord)
 
             for i in range(msg.scenario_data.number_of_lanes - 2):
-                y_coord = get_y_coordinate_from_lane_number(msg.scenario_data.number_of_lanes, i + 1, road_chunk_size.y)
-                middle_lane_road_chunk = self.__create_plane('middle_lane_chunk_' + str(i), road_chunk_size, Vec3(0, y_coord, 0), None, plane_texture_repeat)
+                y_coord = get_y_coordinate_from_lane_number(msg.scenario_data.number_of_lanes, i + 1, self._road_chunk_size.y)
+                middle_lane_road_chunk = self.__create_plane('middle_lane_chunk_' + str(i), self._road_chunk_size, Vec3(0, y_coord, 0), None, plane_texture_repeat)
                 middle_lane_road_chunk.setTexture(self.middle_lane_road_chunk_texture, 1)
                 middle_lane_road_chunk.reparentTo(self._road_chunks[0])
                 self._lane_center_y_positions.append(y_coord)
 
-            y_coord = get_y_coordinate_from_lane_number(msg.scenario_data.number_of_lanes, msg.scenario_data.number_of_lanes - 1, road_chunk_size.y)
-            self._road_center_y_position = (self._road_center_y_position + (y_coord + road_chunk_size.y * 0.5)) * 0.5
-            lower_lane_road_chunk = self.__create_plane("lower_lane_road_chunk", road_chunk_size, Vec3(0, y_coord, 0), None, plane_texture_repeat)
+            y_coord = get_y_coordinate_from_lane_number(msg.scenario_data.number_of_lanes, msg.scenario_data.number_of_lanes - 1, self._road_chunk_size.y)
+            self._road_center_y_position = (self._road_center_y_position + (y_coord + self._road_chunk_size.y * 0.5)) * 0.5
+            lower_lane_road_chunk = self.__create_plane("lower_lane_road_chunk", self._road_chunk_size, Vec3(0, y_coord, 0), None, plane_texture_repeat)
             lower_lane_road_chunk.setTexture(self.lower_lane_road_chunk_texture, 1)
             lower_lane_road_chunk.reparentTo(self._road_chunks[0])
             self._lane_center_y_positions.append(y_coord)
         
-        for chunk_index in range(1, 2):
+        self._road_chunks[0].setPos(Vec3(x_coord - self._road_chunk_size.x, 0, 0))
+
+        for chunk_index in range(1, 3):
             prev_pos = self._road_chunks[chunk_index - 1].getPos()
             self._road_chunks.append(self._road_chunks[0].copyTo(self._road))
             self._road_chunks[chunk_index].setName("RoadChunk_" + str(chunk_index))
-            self._road_chunks[chunk_index].setPos(Vec3(prev_pos.x + road_chunk_size.x, prev_pos.y, prev_pos.z))
+            self._road_chunks[chunk_index].setPos(Vec3(prev_pos.x + self._road_chunk_size.x, prev_pos.y, prev_pos.z))
 
-    def __adjust_road(self):
-        """ TODO """
+    def __adjust_road(self, msg):
+        if msg.ego_vehicle_trajectory.trajectory:
+            x_coord = msg.ego_vehicle_trajectory.trajectory[0].x
+            road_chunk_limit_x = self._road_chunks[self._current_road_chunk_index].getPos().x + self._half_road_chunk_size.x
+
+            if x_coord >= road_chunk_limit_x:
+                next_road_chunk_index = self.__get_next_road_chunk_index()
+                previous_road_chunk_index = self.__get_previous_road_chunk_index()
+                new_road_chunk_pos = self._road_chunks[next_road_chunk_index].getPos()
+                new_road_chunk_pos.x += self._road_chunk_size.x
+                self._road_chunks[previous_road_chunk_index].setPos(new_road_chunk_pos)
+                self._current_road_chunk_index = next_road_chunk_index
+
+    def __get_next_road_chunk_index(self):
+        return (self._current_road_chunk_index + 1) % len(self._road_chunks)
+
+    def __get_previous_road_chunk_index(self):
+        i = self._current_road_chunk_index - 1
+
+        if i < 0:
+            i += len(self._road_chunks)
+
+        return i
 
     def __display_and_update_cars(self, msg):
         if not msg.scenario_data.vehicles_information:
@@ -171,7 +200,7 @@ class SceneViewer(ShowBase):
             self._on_screen_ego.reparentTo(self._cars)
             self._on_screen_ego.setPos(ego_position)
             self._on_screen_ego.setH(self._ego.getH() + ego_rotation_yaw)
-            self.__move_camera(60, ego_position)
+            self.__move_camera(1560, ego_position)
         else:
             self._on_screen_ego.detachNode()
 
@@ -257,14 +286,6 @@ class SceneViewer(ShowBase):
             return [ego, vehicles]
     
     def update(self, msg):
-        # if hasattr(self, 'latest_msg'):
-        #     if self.latest_msg.scenario_data.number_of_lanes != msg.scenario_data.number_of_lanes:
-        #         self.__create_road(msg)
-        # else:
-        #     self.__create_road(msg)
-
-        # self.__display_and_update_cars(msg)
-
         if hasattr(self, 'latest_msg'):
             self._rebuild_road = (self.latest_msg.scenario_data.number_of_lanes != msg.scenario_data.number_of_lanes)
         
