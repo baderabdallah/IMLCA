@@ -157,7 +157,7 @@ class SceneViewer(ShowBase):
             self._road_chunks[chunk_index].setPos(Vec3(prev_pos.x + self._road_chunk_size.x, prev_pos.y, prev_pos.z))
 
     def __adjust_road(self, msg):
-        if msg.ego_vehicle_trajectory.trajectory:
+        if msg.ego_vehicle_trajectory.trajectory and msg.scenario_data.number_of_lanes > 0:
             x_coord = msg.ego_vehicle_trajectory.trajectory[0].x
             road_chunk_limit_x = self._road_chunks[self._current_road_chunk_index].getPos().x + self._half_road_chunk_size.x
 
@@ -200,7 +200,7 @@ class SceneViewer(ShowBase):
             self._on_screen_ego.reparentTo(self._cars)
             self._on_screen_ego.setPos(ego_position)
             self._on_screen_ego.setH(self._ego.getH() + ego_rotation_yaw)
-            self.__move_camera(1560, ego_position)
+            self.__move_camera(60, ego_position)
         else:
             self._on_screen_ego.detachNode()
 
