@@ -1,0 +1,498 @@
+<?xml version="1.0"?>
+<OpenSCENARIO>
+  <FileHeader revMajor="1" revMinor="0" date="2020-03-24T12:00:00" description="CARLA:LaneChangeSimple" author=""/>
+  <ParameterDeclarations>
+    <ParameterDeclaration name="Car1InitDistance_m" parameterType="double" value="70.0"/>
+    <ParameterDeclaration name="Car1InitSpeed_mps" parameterType="double" value="13.0"/>
+    <ParameterDeclaration name="Car1LaneSelection" parameterType="integer" value="1"/>
+
+    <ParameterDeclaration name="Car2InitDistance_m" parameterType="double" value="60"/>
+    <ParameterDeclaration name="Car2InitSpeed_mps" parameterType="double" value="13.0"/>
+    <ParameterDeclaration name="Car2LaneSelection" parameterType="integer" value="2"/>
+
+    <ParameterDeclaration name="Car3InitDistance_m" parameterType="double" value="150"/>
+    <ParameterDeclaration name="Car3InitSpeed_mps" parameterType="double" value="150"/>
+    <ParameterDeclaration name="Car3LaneSelection" parameterType="integer" value="2"/>
+
+    <ParameterDeclaration name="Car4InitDistance_m" parameterType="double" value="160"/>
+    <ParameterDeclaration name="Car4InitSpeed_mps" parameterType="double" value="13.0"/>
+    <ParameterDeclaration name="Car4LaneSelection" parameterType="integer" value="1"/>
+
+    <ParameterDeclaration name="Car5InitDistance_m" parameterType="double" value="90"/>
+    <ParameterDeclaration name="Car5InitSpeed_mps" parameterType="double" value="16.7"/>
+    <ParameterDeclaration name="Car5LaneSelection" parameterType="integer" value="-1"/>
+
+    <ParameterDeclaration name="AdversaryInitDistance_m" parameterType="double" value="30.0"/>
+    <ParameterDeclaration name="AdersaryLaneSelection" parameterType="integer" value="2"/>
+
+    <ParameterDeclaration name="AdersaryLaneChangeDirection0" parameterType="integer" value="1"/>
+    <ParameterDeclaration name="AdersaryLaneChangeTime0" parameterType="integer" value="7.5"/>
+
+    <ParameterDeclaration name="AdersaryLaneChangeDirection1" parameterType="integer" value="1"/>
+    <ParameterDeclaration name="AdersaryLaneChangeTime1" parameterType="integer" value="9.5"/>
+
+    <ParameterDeclaration name="AdersaryLaneChangeDirection2" parameterType="integer" value="-1"/>
+    <ParameterDeclaration name="AdersaryLaneChangeTime2" parameterType="integer" value="13"/>
+
+    <ParameterDeclaration name="AdersaryLaneChangeDirection3" parameterType="integer" value="-1"/>
+    <ParameterDeclaration name="AdersaryLaneChangeTime3" parameterType="integer" value="14"/>
+
+    <ParameterDeclaration name="AdersaryLaneChangeDirection4" parameterType="integer" value="1"/>
+    <ParameterDeclaration name="AdersaryLaneChangeTime4" parameterType="integer" value="25"/>
+
+  </ParameterDeclarations>
+
+  <CatalogLocations>
+    <VehicleCatalog>
+      <Directory path="catalogs"/>
+    </VehicleCatalog>
+    <PedestrianCatalog>
+      <Directory path="catalogs"/>
+    </PedestrianCatalog>
+    <MiscObjectCatalog>
+      <Directory path="catalogs"/>
+    </MiscObjectCatalog>
+    <EnvironmentCatalog>
+      <Directory path="catalogs"/>
+    </EnvironmentCatalog>
+    <ManeuverCatalog>
+      <Directory path="catalogs"/>
+    </ManeuverCatalog>
+    <ControllerCatalog>
+      <Directory path="catalogs"/>
+    </ControllerCatalog>
+  </CatalogLocations>
+  <RoadNetwork>
+    <LogicFile filepath="Town04"/>
+    <SceneGraphFile filepath=""/>
+  </RoadNetwork>
+  <Entities>
+    <ScenarioObject name="hero">
+            <CatalogReference catalogName="VehicleCatalog" entryName="vehicle.tesla.model3"></CatalogReference>
+    </ScenarioObject>
+    
+    <ScenarioObject name="adversary">
+            <CatalogReference catalogName="VehicleCatalog" entryName="vehicle.lincoln.mkz_2017"></CatalogReference>
+    </ScenarioObject>
+
+    <ScenarioObject name="car1">
+      <CatalogReference catalogName="VehicleCatalog" entryName="vehicle.tesla.model3">
+        <ParameterAssignments>
+          <ParameterAssignment parameterRef="carcolor" value="242,242,242" />
+        </ParameterAssignments>
+      </CatalogReference>
+    </ScenarioObject>
+
+    <ScenarioObject name="car2">
+      <CatalogReference catalogName="VehicleCatalog" entryName="vehicle.tesla.model3">
+        <ParameterAssignments>
+          <ParameterAssignment parameterRef="carcolor" value="0,41,83" />
+        </ParameterAssignments>
+      </CatalogReference>
+    </ScenarioObject>
+    
+    <ScenarioObject name="car3">
+            <CatalogReference catalogName="VehicleCatalog" entryName="vehicle.tesla.model3"></CatalogReference>
+    </ScenarioObject>
+    
+    <ScenarioObject name="car4">
+      <CatalogReference catalogName="VehicleCatalog" entryName="vehicle.tesla.model3">
+        <ParameterAssignments>
+          <ParameterAssignment parameterRef="carcolor" value="0,41,83" />
+        </ParameterAssignments>
+      </CatalogReference>
+    </ScenarioObject>
+    
+    <ScenarioObject name="car5">
+            <CatalogReference catalogName="VehicleCatalog" entryName="vehicle.tesla.model3"></CatalogReference>
+    </ScenarioObject>
+
+  </Entities>
+  <Storyboard>
+    <Init>
+      <Actions>
+        <GlobalAction>
+          <EnvironmentAction>
+            <Environment name="Environment1">
+              <TimeOfDay animation="false" dateTime="2019-06-25T12:00:00"/>
+              <Weather cloudState="free">
+                <Sun intensity="0.85" azimuth="0" elevation="1.31"/>
+                <Fog visualRange="100000.0"/>
+                <Precipitation precipitationType="dry" intensity="0.0"/>
+              </Weather>
+              <RoadCondition frictionScaleFactor="1.0"/>
+            </Environment>
+          </EnvironmentAction>
+        </GlobalAction>
+        <Private entityRef="hero">
+          <PrivateAction>
+            <TeleportAction>
+              <Position>
+                <WorldPosition x="-9.4" y="-152.8" z="0.5" h="1.57079632679"/>
+              </Position>
+            </TeleportAction>
+          </PrivateAction>
+          <PrivateAction>
+            <ControllerAction>
+              <AssignControllerAction>
+                <Controller name="HeroAgent">
+                  <Properties>
+                    <Property name="module" value="external_control"/>
+                  </Properties>
+                </Controller>
+              </AssignControllerAction>
+              <OverrideControllerValueAction>
+                <Throttle value="0" active="false"/>
+                <Brake value="0" active="false"/>
+                <Clutch value="0" active="false"/>
+                <ParkingBrake value="0" active="false"/>
+                <SteeringWheel value="0" active="false"/>
+                <Gear number="0" active="false"/>
+              </OverrideControllerValueAction>
+            </ControllerAction>
+          </PrivateAction>
+        </Private>
+        <Private entityRef="adversary">
+          <PrivateAction>
+            <TeleportAction>
+              <Position>
+                <RelativeLanePosition entityRef="hero" dLane="$AdersaryLaneSelection" ds="$AdversaryInitDistance_m" offset="0">
+                  <Orientation type="relative"/>
+                </RelativeLanePosition>
+              </Position>
+            </TeleportAction>
+          </PrivateAction>
+
+          <PrivateAction>
+            <LongitudinalAction>
+              <SpeedAction>
+                <SpeedActionDynamics dynamicsShape="step" dynamicsDimension="time" value="0.1" />
+                <SpeedActionTarget>
+                  <AbsoluteTargetSpeed value="16.0" />
+                </SpeedActionTarget>
+              </SpeedAction>
+            </LongitudinalAction>
+          </PrivateAction>
+
+        </Private>
+        <Private entityRef="car1">
+          <PrivateAction>
+            <TeleportAction>
+              <Position>
+                <RelativeLanePosition entityRef="hero" dLane="$Car1LaneSelection" ds="$Car1InitDistance_m" offset="0">
+                  <Orientation type="relative"/>
+                </RelativeLanePosition>
+              </Position>
+            </TeleportAction>
+          </PrivateAction>
+          <PrivateAction>
+            <LongitudinalAction>
+              <SpeedAction>
+                <SpeedActionDynamics dynamicsShape="step" dynamicsDimension="time" value="0.1" />
+                <SpeedActionTarget>
+                  <AbsoluteTargetSpeed value="$Car1InitSpeed_mps" />
+                </SpeedActionTarget>
+              </SpeedAction>
+            </LongitudinalAction>
+          </PrivateAction>
+        </Private>
+
+        <Private entityRef="car2">
+          <PrivateAction>
+            <TeleportAction>
+              <Position>
+                <RelativeLanePosition entityRef="hero" dLane="$Car2LaneSelection" ds="$Car2InitDistance_m" offset="0">
+                  <Orientation type="relative"/>
+                </RelativeLanePosition>
+              </Position>
+            </TeleportAction>
+          </PrivateAction>
+          <PrivateAction>
+            <LongitudinalAction>
+              <SpeedAction>
+                <SpeedActionDynamics dynamicsShape="step" dynamicsDimension="time" value="0.1" />
+                <SpeedActionTarget>
+                  <AbsoluteTargetSpeed value="$Car2InitSpeed_mps" />
+                </SpeedActionTarget>
+              </SpeedAction>
+            </LongitudinalAction>
+          </PrivateAction>
+        </Private>
+
+
+        <Private entityRef="car3">
+          <PrivateAction>
+            <TeleportAction>
+              <Position>
+                <RelativeLanePosition entityRef="hero" dLane="$Car3LaneSelection" ds="$Car3InitDistance_m" offset="0">
+                  <Orientation type="relative"/>
+                </RelativeLanePosition>
+              </Position>
+            </TeleportAction>
+          </PrivateAction>
+          <PrivateAction>
+            <LongitudinalAction>
+              <SpeedAction>
+                <SpeedActionDynamics dynamicsShape="step" dynamicsDimension="time" value="0.1" />
+                <SpeedActionTarget>
+                  <AbsoluteTargetSpeed value="$Car3InitSpeed_mps" />
+                </SpeedActionTarget>
+              </SpeedAction>
+            </LongitudinalAction>
+          </PrivateAction>
+        </Private>
+
+        <Private entityRef="car4">
+          <PrivateAction>
+            <TeleportAction>
+              <Position>
+                <RelativeLanePosition entityRef="hero" dLane="$Car4LaneSelection" ds="$Car4InitDistance_m" offset="0">
+                  <Orientation type="relative"/>
+                </RelativeLanePosition>
+              </Position>
+            </TeleportAction>
+          </PrivateAction>
+          <PrivateAction>
+            <LongitudinalAction>
+              <SpeedAction>
+                <SpeedActionDynamics dynamicsShape="step" dynamicsDimension="time" value="0.1" />
+                <SpeedActionTarget>
+                  <AbsoluteTargetSpeed value="$Car4InitSpeed_mps" />
+                </SpeedActionTarget>
+              </SpeedAction>
+            </LongitudinalAction>
+          </PrivateAction>
+        </Private>
+
+
+        <Private entityRef="car5">
+          <PrivateAction>
+            <TeleportAction>
+              <Position>
+                <RelativeLanePosition entityRef="hero" dLane="$Car5LaneSelection" ds="$Car5InitDistance_m" offset="0">
+                  <Orientation type="relative"/>
+                </RelativeLanePosition>
+              </Position>
+            </TeleportAction>
+          </PrivateAction>
+          <PrivateAction>
+            <LongitudinalAction>
+              <SpeedAction>
+                <SpeedActionDynamics dynamicsShape="step" dynamicsDimension="time" value="0.1" />
+                <SpeedActionTarget>
+                  <AbsoluteTargetSpeed value="$Car5InitSpeed_mps" />
+                </SpeedActionTarget>
+              </SpeedAction>
+            </LongitudinalAction>
+          </PrivateAction>
+        </Private>
+
+      </Actions>
+    </Init>
+    <Story name="MyStory">
+      <Act name="Behavior">
+        <ManeuverGroup maximumExecutionCount="1" name="ManeuverSequence">
+          <Actors selectTriggeringEntities="false">
+            <EntityRef entityRef="adversary"/>
+          </Actors>
+          <Maneuver name="LaneChangeSimpleManeuver">
+            <Event name="AdversaryAccelerates" priority="overwrite">
+              <Action name="AdversaryAccelerates">
+                <PrivateAction>
+                  <LongitudinalAction>
+                    <SpeedAction>
+                      <SpeedActionDynamics dynamicsShape="step" value="200" dynamicsDimension="time"/>
+                      <SpeedActionTarget>
+                        <AbsoluteTargetSpeed value="16.0"/>
+                      </SpeedActionTarget>
+                    </SpeedAction>
+                  </LongitudinalAction>
+                </PrivateAction>
+              </Action>
+              <StartTrigger>
+                <ConditionGroup>
+                  <Condition name="StartCondition" delay="0" conditionEdge="rising">
+                    <ByEntityCondition>
+                      <TriggeringEntities triggeringEntitiesRule="any">
+                        <EntityRef entityRef="hero"/>
+                      </TriggeringEntities>
+                      <EntityCondition>
+                        <RelativeDistanceCondition entityRef="adversary" relativeDistanceType="cartesianDistance" value="500.0" freespace="false" rule="lessThan"/>
+                      </EntityCondition>
+                    </ByEntityCondition>
+                  </Condition>
+                </ConditionGroup>
+              </StartTrigger>
+            </Event>
+            <Event name="AdversaryChangesLane" priority="overwrite">
+              <Action name="AdversaryChangesLane">
+                <PrivateAction>
+                  <LateralAction>
+                    <LaneChangeAction>
+                      <LaneChangeActionDynamics dynamicsShape="cubic" value="25" dynamicsDimension="distance"/>
+                      <LaneChangeTarget>
+                        <RelativeTargetLane entityRef="adversary" value="$AdersaryLaneChangeDirection0"/>
+                      </LaneChangeTarget>
+                    </LaneChangeAction>
+                  </LateralAction>
+                </PrivateAction>
+              </Action>
+              <StartTrigger>
+                <ConditionGroup>
+                  <Condition name="AfterAdversaryAccelerates" delay="0" conditionEdge="rising">
+                    <ByValueCondition>
+                      <SimulationTimeCondition value="$AdersaryLaneChangeTime0" rule="greaterThan"/>
+                    </ByValueCondition>
+                  </Condition>
+                </ConditionGroup>
+              </StartTrigger>
+            </Event>
+
+            <Event name="AdversaryChangesLane1" priority="overwrite">
+              <Action name="AdversaryChangesLane1">
+                <PrivateAction>
+                  <LateralAction>
+                    <LaneChangeAction>
+                      <LaneChangeActionDynamics dynamicsShape="cubic" value="25" dynamicsDimension="distance"/>
+                      <LaneChangeTarget>
+                        <RelativeTargetLane entityRef="adversary" value="$AdersaryLaneChangeDirection1"/>
+                      </LaneChangeTarget>
+                    </LaneChangeAction>
+                  </LateralAction>
+                </PrivateAction>
+              </Action>
+              <StartTrigger>
+                <ConditionGroup>
+                  <Condition name="AfterAdversaryChangesLane" delay="0" conditionEdge="rising">
+                    <ByValueCondition>
+                      <SimulationTimeCondition value="$AdersaryLaneChangeTime1" rule="greaterThan"/>
+                    </ByValueCondition>
+                  </Condition>
+                </ConditionGroup>
+              </StartTrigger>
+            </Event>
+
+            <Event name="AdversaryChangesLane2" priority="overwrite">
+              <Action name="AdversaryChangesLane2">
+                <PrivateAction>
+                  <LateralAction>
+                    <LaneChangeAction>
+                      <LaneChangeActionDynamics dynamicsShape="cubic" value="25" dynamicsDimension="distance"/>
+                      <LaneChangeTarget>
+                        <RelativeTargetLane entityRef="adversary" value="$AdersaryLaneChangeDirection2"/>
+                      </LaneChangeTarget>
+                    </LaneChangeAction>
+                  </LateralAction>
+                </PrivateAction>
+              </Action>
+              <StartTrigger>
+                <ConditionGroup>
+                  <Condition name="AfterAdversaryChangesLane1" delay="0" conditionEdge="rising">
+                    <ByValueCondition>
+                      <SimulationTimeCondition value="$AdersaryLaneChangeTime2" rule="greaterThan"/>
+                    </ByValueCondition>
+                  </Condition>
+                </ConditionGroup>
+              </StartTrigger>
+            </Event>
+
+
+
+            <Event name="AdversaryChangesLane3" priority="overwrite">
+              <Action name="AdversaryChangesLane3">
+                <PrivateAction>
+                  <LateralAction>
+                    <LaneChangeAction>
+                      <LaneChangeActionDynamics dynamicsShape="cubic" value="25" dynamicsDimension="distance"/>
+                      <LaneChangeTarget>
+                        <RelativeTargetLane entityRef="adversary" value="$AdersaryLaneChangeDirection3"/>
+                      </LaneChangeTarget>
+                    </LaneChangeAction>
+                  </LateralAction>
+                </PrivateAction>
+              </Action>
+              <StartTrigger>
+                <ConditionGroup>
+                  <Condition name="AfterAdversaryChangesLane2" delay="0" conditionEdge="rising">
+                    <ByValueCondition>
+                      <SimulationTimeCondition value="$AdersaryLaneChangeTime3" rule="greaterThan"/>
+                    </ByValueCondition>
+                  </Condition>
+                </ConditionGroup>
+              </StartTrigger>
+            </Event>
+
+
+            <Event name="AdversaryChangesLane4" priority="overwrite">
+              <Action name="AdversaryChangesLane4">
+                <PrivateAction>
+                  <LateralAction>
+                    <LaneChangeAction>
+                      <LaneChangeActionDynamics dynamicsShape="cubic" value="25" dynamicsDimension="distance"/>
+                      <LaneChangeTarget>
+                        <RelativeTargetLane entityRef="adversary" value="$AdersaryLaneChangeDirection4"/>
+                      </LaneChangeTarget>
+                    </LaneChangeAction>
+                  </LateralAction>
+                </PrivateAction>
+              </Action>
+              <StartTrigger>
+                <ConditionGroup>
+                  <Condition name="AfterAdversaryChangesLane3" delay="0" conditionEdge="rising">
+                    <ByValueCondition>
+                      <SimulationTimeCondition value="$AdersaryLaneChangeTime4" rule="greaterThan"/>
+                    </ByValueCondition>
+                  </Condition>
+                </ConditionGroup>
+              </StartTrigger>
+            </Event>
+
+
+          </Maneuver>
+        </ManeuverGroup>
+        <StartTrigger>
+          <ConditionGroup>
+            <Condition name="OverallStartCondition" delay="0" conditionEdge="rising">
+              <ByEntityCondition>
+                <TriggeringEntities triggeringEntitiesRule="any">
+                  <EntityRef entityRef="hero"/>
+                </TriggeringEntities>
+                <EntityCondition>
+                  <TraveledDistanceCondition value="0.0"/>
+                </EntityCondition>
+              </ByEntityCondition>
+            </Condition>
+            <Condition name="StartTime" delay="0" conditionEdge="rising">
+              <ByValueCondition>
+                <SimulationTimeCondition value="0" rule="equalTo"/>
+              </ByValueCondition>
+            </Condition>
+          </ConditionGroup>
+        </StartTrigger>
+        <StopTrigger>
+          <ConditionGroup>
+            <Condition name="EndCondition" delay="0" conditionEdge="rising">
+              <ByEntityCondition>
+                <TriggeringEntities triggeringEntitiesRule="any">
+                  <EntityRef entityRef="hero"/>
+                </TriggeringEntities>
+                <EntityCondition>
+                  <TraveledDistanceCondition value="100.0"/>
+                </EntityCondition>
+              </ByEntityCondition>
+            </Condition>
+          </ConditionGroup>
+        </StopTrigger>
+      </Act>
+    </Story>
+    <StopTrigger>
+      <ConditionGroup>
+        <Condition name="criteria_DrivenDistanceTest" delay="0" conditionEdge="rising">
+          <ByValueCondition>
+            <ParameterCondition parameterRef="distance_success" value="1" rule="lessThan"/>
+          </ByValueCondition>
+        </Condition>
+      </ConditionGroup>
+    </StopTrigger>
+  </Storyboard>
+</OpenSCENARIO>
