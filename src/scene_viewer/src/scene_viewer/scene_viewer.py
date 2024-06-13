@@ -2,6 +2,7 @@ import json
 import os, rospkg
 import random
 
+from direct.directtools.DirectGeometry import LineNodePath
 from direct.gui.OnscreenText import OnscreenText
 from direct.showbase.ShowBase import ShowBase
 from direct.task import Task
@@ -46,6 +47,7 @@ class SceneViewer(ShowBase):
         self._cars = self._scene_root.attachNewNode('Cars')
         self._on_screen_cars = dict()
         self._on_screen_ego = None
+        self._on_screen_ego_trajectory = LineNodePath(parent = self._cars, name="Ego Trajectory", thickness = 1.0, colorVec = Vec4(1, 0, 0, 1))
         self._rebuild_road = True
 
         self.__load_3d_models()
@@ -134,6 +136,13 @@ class SceneViewer(ShowBase):
             upper_lane_road_chunk.reparentTo(self._road_chunks[0])
             self._lane_center_y_positions.append(y_coord)
 
+            # y_coord = y_coord + self._road_chunk_size.y * 0.5 + self._road_chunk_size.y * 0.2 * 0.5
+            y_coord += self._road_chunk_size.y * 0.6
+            upper_lane_road_border_size = Vec2(self._road_chunk_size.x, self._road_chunk_size.y * 0.2)
+            upper_lane_road_border = self.__create_plane("upper_lane_road_border", upper_lane_road_border_size, Vec3(0, y_coord, 0), None, plane_texture_repeat)
+            upper_lane_road_border.setTexture(self.upper_lane_road_border_texture, 1)
+            upper_lane_road_border.reparentTo(self._road_chunks[0])
+
             for i in range(msg.scenario_data.number_of_lanes - 2):
                 y_coord = get_y_coordinate_from_lane_number(msg.scenario_data.number_of_lanes, i + 1, self._road_chunk_size.y)
                 middle_lane_road_chunk = self.__create_plane('middle_lane_chunk_' + str(i), self._road_chunk_size, Vec3(0, y_coord, 0), None, plane_texture_repeat)
@@ -147,6 +156,13 @@ class SceneViewer(ShowBase):
             lower_lane_road_chunk.setTexture(self.lower_lane_road_chunk_texture, 1)
             lower_lane_road_chunk.reparentTo(self._road_chunks[0])
             self._lane_center_y_positions.append(y_coord)
+
+            # y_coord = y_coord - self._road_chunk_size.y * 0.5 - self._road_chunk_size.y * 0.2 * 0.5
+            y_coord -= self._road_chunk_size.y * 0.6
+            lower_lane_road_border_size = Vec2(self._road_chunk_size.x, self._road_chunk_size.y * 0.2)
+            lower_lane_road_border = self.__create_plane("lower_lane_road_border", lower_lane_road_border_size, Vec3(0, y_coord, 0), None, plane_texture_repeat)
+            lower_lane_road_border.setTexture(self.lower_lane_road_border_texture, 1)
+            lower_lane_road_border.reparentTo(self._road_chunks[0])
         
         self._road_chunks[0].setPos(Vec3(x_coord - self._road_chunk_size.x, 0, 0))
 
@@ -201,8 +217,10 @@ class SceneViewer(ShowBase):
             self._on_screen_ego.setPos(ego_position)
             self._on_screen_ego.setH(self._ego.getH() + ego_rotation_yaw)
             self.__move_camera(60, ego_position)
+            self.__show_ego_trajectory(ego_trajectory, 2)
         else:
             self._on_screen_ego.detachNode()
+            self._on_screen_ego_trajectory.reset()
 
         for v in msg.scenario_data.vehicles_information:
             received_car_ids[v.id] = v.id
@@ -228,6 +246,18 @@ class SceneViewer(ShowBase):
         # float64 velocity_x
         # print("ON SCREEN CARS = " + str(len(self._on_screen_cars)) + ", INFO = " + str(len(msg.scenario_data.vehicles_information)))
 
+    def __show_ego_trajectory(self, trajectory, height):
+        if trajectory:
+            """"""
+            points = []
+
+            for p in trajectory:
+                points.append((p.x, p.y, height))
+            
+            self._on_screen_ego_trajectory.reset()
+            self._on_screen_ego_trajectory.drawLines([(points)])
+            self._on_screen_ego_trajectory.create()
+
     def __load_2d_texture(self, texture_file_name, texture_wrap_mode=(Texture.WM_repeat, Texture.WM_repeat), texture_filter=(Texture.FT_linear, Texture.FT_linear)):
         texture = self.loader.loadTexture(os.path.join(self._textures_base_path, texture_file_name))
         texture.setWrapU(texture_wrap_mode[0])
@@ -237,9 +267,11 @@ class SceneViewer(ShowBase):
         return texture
 
     def __load_textures(self):
+        self.upper_lane_road_border_texture = self.__load_2d_texture("UpperLaneBorder.png", (Texture.WM_mirror, Texture.WM_mirror))
         self.upper_lane_road_chunk_texture = self.__load_2d_texture("UpperLaneChunk.png", (Texture.WM_mirror, Texture.WM_mirror))
         self.middle_lane_road_chunk_texture = self.__load_2d_texture("MiddleLaneChunk.png", (Texture.WM_mirror, Texture.WM_mirror))
         self.lower_lane_road_chunk_texture = self.__load_2d_texture("LowerLaneChunk.png", (Texture.WM_mirror, Texture.WM_mirror))
+        self.lower_lane_road_border_texture = self.__load_2d_texture("LowerLaneBorder.png", (Texture.WM_mirror, Texture.WM_mirror))
         self.single_lane_road_chunk_texture = self.__load_2d_texture("SingleLaneChunk.png", (Texture.WM_mirror, Texture.WM_mirror))
 
     def __load_3d_model(self, model_info):
