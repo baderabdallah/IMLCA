@@ -121,48 +121,68 @@ class SceneViewer(ShowBase):
             x_coord = 0
 
         if msg.scenario_data.number_of_lanes == 1:
+            # Draw single lane
             y_coord = get_y_coordinate_from_lane_number(1, 0, self._road_chunk_size.y)
             road_chunk = self.__create_plane("single_lane_road", self._road_chunk_size, (0, y_coord, 0), None, plane_texture_repeat)
             road_chunk.setTexture(self.single_lane_road_chunk_texture, 1)
             road_chunk.reparentTo(self._road_chunks[0])
             self._lane_center_y_positions.append(y_coord)
             self._road_center_y_position = y_coord
+            ######################################################################################
 
         elif msg.scenario_data.number_of_lanes > 1:
+            # Draw upper lane
             y_coord = get_y_coordinate_from_lane_number(msg.scenario_data.number_of_lanes, 0, self._road_chunk_size.y)
             self._road_center_y_position = y_coord - self._road_chunk_size.y * 0.5
             upper_lane_road_chunk = self.__create_plane("upper_lane_road_chunk", self._road_chunk_size, Vec3(0, y_coord, 0), None, plane_texture_repeat)
             upper_lane_road_chunk.setTexture(self.upper_lane_road_chunk_texture, 1)
             upper_lane_road_chunk.reparentTo(self._road_chunks[0])
             self._lane_center_y_positions.append(y_coord)
+            ######################################################################################
 
-            # y_coord = y_coord + self._road_chunk_size.y * 0.5 + self._road_chunk_size.y * 0.2 * 0.5
+            # Draw upper lane border
+            # y_coord = y_coord + self._road_chunk_size.y / 2 + (self._road_chunk_size.y / 5) / 2
             y_coord += self._road_chunk_size.y * 0.6
             upper_lane_road_border_size = Vec2(self._road_chunk_size.x, self._road_chunk_size.y * 0.2)
             upper_lane_road_border = self.__create_plane("upper_lane_road_border", upper_lane_road_border_size, Vec3(0, y_coord, 0), None, plane_texture_repeat)
             upper_lane_road_border.setTexture(self.upper_lane_road_border_texture, 1)
             upper_lane_road_border.reparentTo(self._road_chunks[0])
+            ######################################################################################
 
-            for i in range(msg.scenario_data.number_of_lanes - 2):
+            # Draw middle lanes
+            y_coords = []
+            middle_lane_count = msg.scenario_data.number_of_lanes - 2
+
+            for i in range(middle_lane_count):
                 y_coord = get_y_coordinate_from_lane_number(msg.scenario_data.number_of_lanes, i + 1, self._road_chunk_size.y)
-                middle_lane_road_chunk = self.__create_plane('middle_lane_chunk_' + str(i), self._road_chunk_size, Vec3(0, y_coord, 0), None, plane_texture_repeat)
-                middle_lane_road_chunk.setTexture(self.middle_lane_road_chunk_texture, 1)
-                middle_lane_road_chunk.reparentTo(self._road_chunks[0])
                 self._lane_center_y_positions.append(y_coord)
+                y_coords.append(y_coord)
+            
+            center_y_coord = (y_coords[0] + y_coords[middle_lane_count - 1]) * 0.5
+            middle_lane_road_size = Vec2(self._road_chunk_size.x, self._road_chunk_size.y * middle_lane_count)
+            middle_lane_road_texture_repeat = Vec2(plane_texture_repeat.x, middle_lane_count)
+            middle_lane_road_chunk = self.__create_plane("middle_lane_chunk", middle_lane_road_size, Vec3(0, center_y_coord, 0), None, middle_lane_road_texture_repeat)
+            middle_lane_road_chunk.setTexture(self.middle_lane_road_chunk_texture, 1)
+            middle_lane_road_chunk.reparentTo(self._road_chunks[0])
+            ######################################################################################
 
+            # Draw lower lane
             y_coord = get_y_coordinate_from_lane_number(msg.scenario_data.number_of_lanes, msg.scenario_data.number_of_lanes - 1, self._road_chunk_size.y)
             self._road_center_y_position = (self._road_center_y_position + (y_coord + self._road_chunk_size.y * 0.5)) * 0.5
             lower_lane_road_chunk = self.__create_plane("lower_lane_road_chunk", self._road_chunk_size, Vec3(0, y_coord, 0), None, plane_texture_repeat)
             lower_lane_road_chunk.setTexture(self.lower_lane_road_chunk_texture, 1)
             lower_lane_road_chunk.reparentTo(self._road_chunks[0])
             self._lane_center_y_positions.append(y_coord)
+            ######################################################################################
 
-            # y_coord = y_coord - self._road_chunk_size.y * 0.5 - self._road_chunk_size.y * 0.2 * 0.5
+            # Draw lower lane border
+            # y_coord = y_coord - self._road_chunk_size.y / 2 - (self._road_chunk_size.y / 5) / 2
             y_coord -= self._road_chunk_size.y * 0.6
             lower_lane_road_border_size = Vec2(self._road_chunk_size.x, self._road_chunk_size.y * 0.2)
             lower_lane_road_border = self.__create_plane("lower_lane_road_border", lower_lane_road_border_size, Vec3(0, y_coord, 0), None, plane_texture_repeat)
             lower_lane_road_border.setTexture(self.lower_lane_road_border_texture, 1)
             lower_lane_road_border.reparentTo(self._road_chunks[0])
+            ######################################################################################
         
         self._road_chunks[0].setPos(Vec3(x_coord - self._road_chunk_size.x, 0, 0))
 
