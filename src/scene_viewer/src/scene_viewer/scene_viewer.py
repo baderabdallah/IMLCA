@@ -3,6 +3,7 @@ import os, rospkg
 import random
 
 from direct.directtools.DirectGeometry import LineNodePath
+from direct.gui.DirectGui import *
 from direct.gui.OnscreenText import OnscreenText
 from direct.showbase.ShowBase import ShowBase
 from direct.task import Task
@@ -30,7 +31,7 @@ class SceneViewer(ShowBase):
         ShowBase.__init__(self)
         
         properties = WindowProperties()
-        properties.setSize(1600, 900)
+        properties.setSize(WINDOW_WIDTH, WINDOW_HEIGHT)
         properties.setTitle(FIGURE_TITLE)
         
         self.win.requestProperties(properties)
@@ -49,7 +50,8 @@ class SceneViewer(ShowBase):
         self._on_screen_ego = None
         self._on_screen_ego_trajectory = LineNodePath(parent = self._cars, name="Ego Trajectory", thickness = 1.0, colorVec = Vec4(1, 0, 0, 1))
         self._rebuild_road = True
-
+        self._initialize_gui = True
+        
         self.__load_3d_models()
         self.__load_textures()
 
@@ -65,6 +67,10 @@ class SceneViewer(ShowBase):
     #     return Task.cont
 
     def __update_scene(self, task):
+        if self._initialize_gui and self.__can_initialize_gui():
+            self._initialize_gui = False
+            self.__init_gui()
+        
         if hasattr(self, 'latest_msg'):
             if self._rebuild_road:
                 self._rebuild_road = False
@@ -73,7 +79,10 @@ class SceneViewer(ShowBase):
                 self.__adjust_road(self.latest_msg)
 
             self.__display_and_update_cars(self.latest_msg)
-            
+
+            if not self._initialize_gui:
+                self.__update_gui()
+        
         return Task.cont
     
     def __move_camera(self, height=50, target=Vec3()):
@@ -337,6 +346,19 @@ class SceneViewer(ShowBase):
             
             return [ego, vehicles]
     
+    def __init_gui(self):
+        """ TODO """
+        # frame = DirectFrame(parent=self.render2d, frameColor=(1, 0, 0, 0.3), frameSize=(self.a2dLeft, self.a2dRight, self.a2dBottom, self.a2dTop), pos=(0, 0, 0))
+        # frame = DirectFrame(parent=self.aspect2d, frameColor=(1, 0, 0, 0.3), frameSize=(-0.5, 0.5, -0.5, 0.5), pos=(0, 0, 0))
+        # frame = DirectFrame(parent=self.a2dTopLeft, frameColor=(1, 0, 0, 0.3), frameSize=(-1, 1, -1, 1), pos=(self.getAspectRatio(self.win), 0, -1))
+
+    def __can_initialize_gui(self):
+        win_size = self.win.getProperties().getSize()
+        return win_size.x == WINDOW_WIDTH and win_size.y == WINDOW_HEIGHT
+
+    def __update_gui(self):
+        """ TODO """
+
     def update(self, msg):
         if hasattr(self, 'latest_msg'):
             self._rebuild_road = (self.latest_msg.scenario_data.number_of_lanes != msg.scenario_data.number_of_lanes)
