@@ -24,7 +24,7 @@ class VisualizerNode():
             mlc_topic, Mlc, self.mlc_callback)
 
         self.ani = FuncAnimation(self._fig, self.update_plot, cache_frame_data=False)
-        self._fig.canvas.manager.window.move(100, 20)
+
 
     def mlc_callback(self, msg):
         self.latest_msg = msg

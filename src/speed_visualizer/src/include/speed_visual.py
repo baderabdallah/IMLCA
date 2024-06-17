@@ -20,8 +20,7 @@ class SpeedVisual:
         self._ax.set_xticklabels([])
         self._ax.set_theta_zero_location('W')
         self._ax.set_theta_direction(-1)
-        
-        self._fig.canvas.manager.window.move(100, 600)
+
 
     def draw_speedometer_visual(self, current_speed):
         self._ax.cla()
