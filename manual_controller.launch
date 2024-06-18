@@ -8,4 +8,9 @@
     <node pkg="keyboard_listener"  type="keyboard_listener" name="keyboard_listener"/>
 
     <node pkg="speed_visualizer"  type="speed_visualizer_node.py" name="speed_visualizer_node"/>    
+
+    <node pkg="sensor_simulation"  type="sensor_simulation_node.py" name="sensor_simulation_node"/>
+    
+    <!--<node pkg="rl_agent"  type="rl_agent.py" name="rl_agent"/>-->
+
 </launch>
