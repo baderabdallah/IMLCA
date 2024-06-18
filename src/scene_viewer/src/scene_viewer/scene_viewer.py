@@ -128,7 +128,7 @@ class SceneViewer(ShowBase):
             x_coord = msg.ego_vehicle_trajectory.trajectory[0].x
         else:
             x_coord = 0
-
+        
         if msg.scenario_data.number_of_lanes == 1:
             # Draw single lane
             y_coord = get_y_coordinate_from_lane_number(1, 0, self._road_chunk_size.y)
@@ -345,19 +345,36 @@ class SceneViewer(ShowBase):
                 vehicles.append(v)
             
             return [ego, vehicles]
-    
-    def __init_gui(self):
-        """ TODO """
-        # frame = DirectFrame(parent=self.render2d, frameColor=(1, 0, 0, 0.3), frameSize=(self.a2dLeft, self.a2dRight, self.a2dBottom, self.a2dTop), pos=(0, 0, 0))
-        # frame = DirectFrame(parent=self.aspect2d, frameColor=(1, 0, 0, 0.3), frameSize=(-0.5, 0.5, -0.5, 0.5), pos=(0, 0, 0))
-        # frame = DirectFrame(parent=self.a2dTopLeft, frameColor=(1, 0, 0, 0.3), frameSize=(-1, 1, -1, 1), pos=(self.getAspectRatio(self.win), 0, -1))
 
     def __can_initialize_gui(self):
         win_size = self.win.getProperties().getSize()
         return win_size.x == WINDOW_WIDTH and win_size.y == WINDOW_HEIGHT
 
+    def __init_gui(self):
+        frame_size = Vec2((self.a2dRight - self.a2dLeft) * 0.97, (self.a2dTop - self.a2dBottom) * 0.2)
+        self.info_frame = DirectFrame(parent=self.aspect2d, frameColor = (1, 1, 1, 0.3), frameSize = (-frame_size.x * 0.5, frame_size.x * 0.5, -frame_size.y * 0.5, frame_size.y * 0.5), pos=(0, 0, self.a2dBottom + frame_size.y * 0.5 + 0.025))
+
+        self.speed_info = DirectFrame(parent=self.info_frame, text = "Speed: 130 km/h", frameColor = (1, 1, 1, 0), pos = (0, 0, 0), scale = 0.08)
+        self.speed_info.setPos(self.__get_frame_position(self.speed_info, self.info_frame))
+
+        self.lane_change_decision_info = DirectFrame(parent=self.info_frame, text = "Lane change needed: Yes", frameColor = (1, 1, 1, 0), pos = (0, 0, 0), scale = 0.08)
+        self.lane_change_decision_info.setPos(self.__get_frame_position(self.lane_change_decision_info, self.info_frame, Vec2(0, -0.05 - self.speed_info.getPos().y - self.speed_info.getHeight() * 0.5 * self.speed_info.getScale().y)))
+        
+        self.target_lane_info = DirectFrame(parent=self.info_frame, text = "Target lane: ", frameColor = (1, 1, 1, 0), pos = (0, 0, 0), scale = 0.08)
+        self.target_lane_info.setPos(self.__get_frame_position(self.target_lane_info, self.info_frame, Vec2(0, -0.05 - self.lane_change_decision_info.getPos().y - self.lane_change_decision_info.getHeight() * 0.5 * self.lane_change_decision_info.getScale().y)))
+
+        # self.lane_change_status_info = DirectFrame(parent=self.info_frame, text = "Lane change status: ", frameColor = (1, 1, 1, 0), pos = (0, 0, 0), scale = 0.08)
+        # self.lane_change_countdown_info = DirectFrame(parent=self.info_frame, text = "Time left before lane change: ", frameColor = (1, 1, 1, 0), pos = (0, 0, 0), scale = 0.08)
+        # self.distance_to_lane_change_info = DirectFrame(parent=self.info_frame, text = "Distance left before lane change: ", frameColor = (1, 1, 1, 0), pos = (0, 0, 0), scale = 0.08)
+
     def __update_gui(self):
         """ TODO """
+
+
+    def __get_frame_position(self, frame, container, offset = Vec2(0, 0)):
+        x = 0.025 + 0.5 * (-container.getWidth() * container.getScale().x + frame.getWidth() * frame.getScale().x) + offset.x
+        y = -0.05 + 0.5 * (container.getHeight() * container.getScale().y - frame.getHeight() * frame.getScale().y) + offset.y
+        return Vec3(x, 0, y)
 
     def update(self, msg):
         if hasattr(self, 'latest_msg'):
