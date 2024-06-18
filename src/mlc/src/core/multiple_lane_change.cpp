@@ -1,10 +1,9 @@
-#include "collision_detector.h"
 #include "follow_lane_trajectory_planner.h"
 #include "lane_change_trajectory_planner.h"
 #include "multiple_lane_change.h"
 
-MultipleLaneChange::MultipleLaneChange(const Parameters& parameters)
-  : parameters_{parameters}
+MultipleLaneChange::MultipleLaneChange(const Parameters& parameters, const EgoState& ego_state)
+  : parameters_{parameters}, ego_state_{ego_state}
 {
     state_machine_.AddTransition(MotionStates::kFollowLane,
                                  MotionTransitions::kStartLaneChangeRight,
@@ -35,6 +34,12 @@ void MultipleLaneChange::SetKeyboardInput(const std::string kb_input){
 
 void MultipleLaneChange::Step()
 {
+    if (kb_input_ == "Left Arrow"){
+        ego_state_.speed--;
+    }
+    if (kb_input_ == "Right Arrow"){
+        ego_state_.speed++;
+    }
 
     if (MotionStates::kFollowLane == state_machine_.GetCurrentState())
         {
@@ -54,21 +59,20 @@ Trajectory MultipleLaneChange::GetEgoTrajectory() const
     return ego_trajectory_;
 }
 
+EgoState MultipleLaneChange::GetEgoState() const
+{
+    return ego_state_;
+}
+
 void MultipleLaneChange::HandleFollowLaneState()
 {
-    if (kb_input_ == "") {
+    if (kb_input_ != "Up Arrow" && kb_input_ != "Down Arrow") {
         KeepFollowingLane();
     }
     else
     {
         StartLaneChange();
     }
-}
-
-bool MultipleLaneChange::EgoReachedTargetLane() const
-{
-    const auto target_lane_id{parameters_.number_of_lanes - 1};
-    return (ego_state_.lane_id == target_lane_id);
 }
 
 void MultipleLaneChange::KeepFollowingLane()

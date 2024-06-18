@@ -25,10 +25,11 @@ class VisualizerNode():
 
         self.ani = FuncAnimation(self._fig, self.update_plot, cache_frame_data=False)
 
+
     def mlc_callback(self, msg):
         self.latest_msg = msg
 
-    def update_plot(self, frame):
+    def update_plot(self, _):
         if hasattr(self, 'latest_msg'):
             plot_mlc(self.latest_msg, self._ax)
 

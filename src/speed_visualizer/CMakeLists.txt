@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(mlc)
+project(speed_visualizer)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -9,7 +9,6 @@ project(mlc)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   lane_msgs
-  roscpp
   rospy
   std_msgs
 )
@@ -21,7 +20,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
-# catkin_python_setup()
+catkin_python_setup()
 
 ################################################
 ## Declare ROS messages, services and actions ##
@@ -71,7 +70,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate added messages and services with any dependencies listed here
 # generate_messages(
 #   DEPENDENCIES
-#   lane_msgs#   std_msgs
+#   std_msgs
 # )
 
 ################################################
@@ -105,8 +104,8 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES mlc
-#  CATKIN_DEPENDS lane_msgs roscpp rospy std_msgs
+#  LIBRARIES speed_visualizer
+#  CATKIN_DEPENDS rospy std_msgs
 #  DEPENDS system_lib
 )
 
@@ -123,7 +122,7 @@ include_directories(
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/mlc.cpp
+#   src/${PROJECT_NAME}/speed_visualizer.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -134,7 +133,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/mlc_node.cpp)
+# add_executable(${PROJECT_NAME}_node src/speed_visualizer_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -198,24 +197,13 @@ include_directories(
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_mlc.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_speed_visualizer.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
-
-include_directories(src/core)
-include_directories(src)
-
-add_executable(mlc_node
-    src/mlc_node.cpp
-    src/core/follow_lane_trajectory_planner.cpp
-    src/core/lane_change_trajectory_planner.cpp
-    src/core/multiple_lane_change.cpp
-    src/core/utils.cpp
-    )
-
-target_link_libraries(mlc_node PUBLIC ${catkin_LIBRARIES})
-
+catkin_install_python(PROGRAMS src/speed_visualizer_node.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)

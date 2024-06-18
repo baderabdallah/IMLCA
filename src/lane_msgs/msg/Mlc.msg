@@ -1,2 +1,3 @@
 ScenarioData scenario_data
 Trajectory ego_vehicle_trajectory 
+EgoInfo ego_info

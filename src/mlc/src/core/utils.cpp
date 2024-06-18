@@ -5,9 +5,9 @@ double ComputeLaneCenterYCoordinate(const int lane_id, const Parameters& paramet
     return (parameters.number_of_lanes - lane_id) * parameters.lane_width - (parameters.lane_width/2);
 }
 
-double ComputeEgoDistanceIncrement(const Parameters& parameters)
+double ComputeEgoDistanceIncrement(const Parameters& parameters, const EgoState& ego_state)
 {
-    return (parameters.ego_speed * 1000.0 / 3600.0 * parameters.cycle_time);
+    return (ego_state.speed * 1000.0 / 3600.0 * parameters.cycle_time);
 }
 
 Trajectory ComputeStraightTrajectory(const double x_start, const double y, const double x_increment, const int size)

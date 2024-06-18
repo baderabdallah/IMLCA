@@ -54,7 +54,8 @@ add_message_files(
   Pose.msg
   ScenarioData.msg
   Trajectory.msg
-  VehiclePosition.msg
+  VehicleInfo.msg
+  EgoInfo.msg
 )
 
 ## Generate services in the 'srv' folder
