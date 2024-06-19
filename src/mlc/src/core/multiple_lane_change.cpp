@@ -34,10 +34,11 @@ void MultipleLaneChange::SetKeyboardInput(const std::string kb_input){
 
 void MultipleLaneChange::Step()
 {
-    if (kb_input_ == "Left Arrow"){
+    if (kb_input_ == "Left Arrow" && ego_state_.speed > 0)
+    {
         ego_state_.speed--;
     }
-    if (kb_input_ == "Right Arrow"){
+    if (kb_input_ == "Right Arrow" && ego_state_.speed < 120){
         ego_state_.speed++;
     }
 
@@ -64,6 +65,11 @@ EgoState MultipleLaneChange::GetEgoState() const
     return ego_state_;
 }
 
+bool MultipleLaneChange::isActionPossible() const
+{
+    return following_lane_counter > 2;
+}
+
 void MultipleLaneChange::HandleFollowLaneState()
 {
     if (kb_input_ != "Up Arrow" && kb_input_ != "Down Arrow") {
@@ -79,24 +85,29 @@ void MultipleLaneChange::KeepFollowingLane()
 {
     ego_trajectory_ = ComputeFollowLaneTrajectory(ego_state_, parameters_);
     UpdateEgoState(ego_trajectory_);
+    following_lane_counter += 1;
 }
 
 void MultipleLaneChange::StartLaneChange()
 {
-    bool is_ego_in_left_most_lane = ego_state_.lane_id > 0;
-    bool is_ego_in_right_most_lane = ego_state_.lane_id < parameters_.number_of_lanes - 1;
+    bool is_ego_not_in_left_most_lane = ego_state_.lane_id > 0;
+    bool is_ego_not_in_right_most_lane = ego_state_.lane_id < parameters_.number_of_lanes - 1;
 
-    if (kb_input_ == "Up Arrow" && is_ego_in_left_most_lane) {
+    if (kb_input_ == "Up Arrow" && is_ego_not_in_left_most_lane) {
         const auto lane_change_trajectory{ComputeLaneChangeTrajectory(ego_state_, parameters_, LaneChangeCommandDirection::kLeft)};
         ego_trajectory_ = lane_change_trajectory;
         UpdateEgoState(ego_trajectory_);
         state_machine_.HandleEvent(MotionTransitions::kStartLaneChangeLeft);
+        following_lane_counter = 0;
     }
-    else if (kb_input_ == "Down Arrow" && is_ego_in_right_most_lane) {
+    else if (kb_input_ == "Down Arrow" && is_ego_not_in_right_most_lane) {
         const auto lane_change_trajectory{ComputeLaneChangeTrajectory(ego_state_, parameters_, LaneChangeCommandDirection::kRight)};
         ego_trajectory_ = lane_change_trajectory;
         UpdateEgoState(ego_trajectory_);
         state_machine_.HandleEvent(MotionTransitions::kStartLaneChangeRight);
+        following_lane_counter = 0;
+    } else {
+        KeepFollowingLane();
     }
 }
 

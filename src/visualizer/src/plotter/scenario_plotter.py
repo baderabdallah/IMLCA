@@ -4,7 +4,7 @@
 @brief This file contains functions to plot the content of an MLC message on a given axis.
 """
 
-
+import rospy
 from plotter.constants import *
 from plotter.objects.car import Car
 from plotter.objects.trajectory import Trajectory
@@ -94,6 +94,8 @@ def build_traffic_agents(vehicles_information, lane_numbers, scene):
     
 
 def plot_mlc(mlc_message, ax):
+
+    rospy.loginfo(f"Number of lanes: {mlc_message.scenario_data.number_of_lanes}")
 
     (min_x, max_x) = get_min_max_x(mlc_message)
     

@@ -103,8 +103,10 @@ class Mlc
     {
       ROS_INFO("Received key: %s", msg->data.c_str());
 
-      multiple_lane_change_->SetKeyboardInput(msg->data);
-      
+      if (multiple_lane_change_->isActionPossible()) {
+        multiple_lane_change_->SetKeyboardInput(msg->data);
+      }
+
       return;
     }
 
