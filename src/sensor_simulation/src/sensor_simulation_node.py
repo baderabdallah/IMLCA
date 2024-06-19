@@ -12,6 +12,7 @@ class SensorSimulationNode():
         mlc_topic = "/mlc/mlc_data"
         self.object_list = []
         
+        
         self.mlc_subscriber = rospy.Subscriber(
             mlc_topic, Mlc, self.mlc_callback
         )
@@ -25,10 +26,20 @@ class SensorSimulationNode():
         return (number_of_lanes - lane_id) * lane_width - (lane_width/2)
 
     def mlc_callback(self, msg):
-        ego_x = msg.ego_vehicle_trajectory.trajectory[0].x
-        ego_y = msg.ego_vehicle_trajectory.trajectory[0].y
+        
+        lanes_number = msg.scenario_data.number_of_lanes
+        
+        if len(msg.ego_vehicle_trajectory.trajectory) > 0:
+            ego_x = msg.ego_vehicle_trajectory.trajectory[0].x
+            ego_y = msg.ego_vehicle_trajectory.trajectory[0].y
+
+        else:
+            # Can happen that trajectory is empty
+            ego_y = self.calculate_y(msg.ego_info.lane_number, lanes_number)
+            ego_x = msg.ego_info.pos_x
+
+            
         ego_vx = msg.ego_info.velocity_x
-        ego_lane_number = msg.ego_info.lane_number
 
         ego_info = [
             {
@@ -38,8 +49,7 @@ class SensorSimulationNode():
                 "vy": 0,
             }
         ]
-
-        lanes_number = msg.scenario_data.number_of_lanes
+        
         self.object_list = ego_info + [{
             "x": data.pos_x,
             "y": self.calculate_y(data.lane_number, lanes_number),
