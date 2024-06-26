@@ -7,6 +7,8 @@
 ## Requirements
 - Ubuntu 20.04
 - ROS Noetic
+- The 'Panda3D' framework (https://www.panda3d.org)
+- The 'panda3d-gltf' plugin
 
 ## Description
 
@@ -22,6 +24,17 @@ A single lane change is done over a predefined distance, based on which the traj
 
 
 ![alt text](description/architecture.png)
+
+## Installing required packages
+Install the 'Panda3D' framework, version 1.10.14 or above
+```console
+$ pip install panda3d==1.10.14
+```
+
+Install the 'panda3d-gltf' plugin
+```console
+$ pip install -U panda3d-gltf
+```
 
 ## Building and Running
 From the workspace folder run

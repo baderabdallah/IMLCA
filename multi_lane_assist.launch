@@ -5,5 +5,5 @@
 
     <node pkg="visualizer"  type="visualizer_node.py" name="visualizer_node"/>
 
-    <node pkg="speed_visualizer"  type="speed_visualizer_node.py" name="speed_visualizer_node"/>
+    <node pkg="speed_visualizer"  type="speed_visualizer_node.py" name="speed_visualizer_node"/>    
 </launch>
