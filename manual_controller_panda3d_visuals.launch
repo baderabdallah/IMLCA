@@ -3,7 +3,10 @@
 
     <node pkg="mlc"  type="mlc_node" name="mlc_node"/>
 
-    <node pkg="visualizer"  type="visualizer_node.py" name="visualizer_node"/>
+    <node pkg="scene_viewer"  type="scene_viewer_node.py" name="scene_viewer" output="screen"/>
 
     <node pkg="speed_visualizer"  type="speed_visualizer_node.py" name="speed_visualizer_node"/>    
+
+    <node pkg="keyboard_listener"  type="keyboard_listener" name="keyboard_listener"/>
+
 </launch>
