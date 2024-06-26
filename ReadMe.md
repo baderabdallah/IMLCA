@@ -71,5 +71,7 @@ $ roslaunch multi_lane_assist.launch
     - Subscriptions:
         - /mlc/mlc_data [lane_msgs/Mlc]
 
+TODO: add scene viewer node
+
 ![alt text](description/ros_node_structure.png)
 
