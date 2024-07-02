@@ -56,6 +56,7 @@ add_message_files(
   Trajectory.msg
   VehicleInfo.msg
   EgoInfo.msg
+  KPIs.msg
 )
 
 ## Generate services in the 'srv' folder
