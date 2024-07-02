@@ -9,4 +9,5 @@
 
     <node pkg="keyboard_listener"  type="keyboard_listener" name="keyboard_listener"/>
 
+    <node pkg="kpis_tracker"  type="kpis_tracker_node.py" name="kpis_tracker_node"/>  
 </launch>
