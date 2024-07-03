@@ -18,6 +18,8 @@ class KPIsTrackerNode():
         self.overall_sum_of_velocity_samples = 0
         self.overall_count_of_velocity_samples = 0
         self.overall_avg_of_velocity_samples = 0
+        self.current_lane = None
+        self.lane_changes = 0
         self.kpi = KPIs()
 
         # Publisher
@@ -32,6 +34,7 @@ class KPIsTrackerNode():
     def _subscriber_callback(self, msg):
         self.latest_msg = msg
         self._update_overall_avg_velocity(msg)
+        self._update_lane_changes(msg)
 
     def _update_overall_avg_velocity(self, msg):
         # Compute the average speed just accumulating the
@@ -42,10 +45,16 @@ class KPIsTrackerNode():
         self.overall_sum_of_velocity_samples += msg.ego_info.velocity_x
         self.overall_avg_of_velocity_samples = self.overall_sum_of_velocity_samples / self.overall_count_of_velocity_samples
 
+    def _update_lane_changes(self, msg):
+        # (possibly) update the count for lane changes
+        if self.current_lane and self.current_lane != msg.ego_info.lane_number:
+            self.lane_changes += 1
+        self.current_lane = msg.ego_info.lane_number
+
     def _publishing(self):
         # Publish the KPI at specified rate
         while not rospy.is_shutdown():
-            self.kpi.lane_changes = 0
+            self.kpi.lane_changes = self.lane_changes
             self.kpi.overall_avg_velocity = self.overall_avg_of_velocity_samples
             self.pub.publish(self.kpi)
             self.publish_rate.sleep()
