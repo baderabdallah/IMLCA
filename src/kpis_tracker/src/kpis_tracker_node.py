@@ -12,11 +12,13 @@ class KPIsTrackerNode():
 
     def __init__(self, rate = 2):
         in_topic = "/mlc/mlc_data"
-        out_topic = "/kpi/data"
-        
+        out_topic = "/kpi"
+
+        # Data used to track speed KPIs        
         self.overall_sum_of_velocity_samples = 0
         self.overall_count_of_velocity_samples = 0
         self.overall_avg_of_velocity_samples = 0
+        self.kpi = KPIs()
 
         # Publisher
         self.pub = rospy.Publisher(out_topic, KPIs, queue_size=10)
@@ -32,16 +34,20 @@ class KPIsTrackerNode():
         self._update_overall_avg_velocity(msg)
 
     def _update_overall_avg_velocity(self, msg):
+        # Compute the average speed just accumulating the
+        # current speed and dividing by number of samples
+        # elapsed since now
+        # TODO: could have numerical instability in long run
         self.overall_count_of_velocity_samples += 1
         self.overall_sum_of_velocity_samples += msg.ego_info.velocity_x
         self.overall_avg_of_velocity_samples = self.overall_sum_of_velocity_samples / self.overall_count_of_velocity_samples
 
     def _publishing(self):
+        # Publish the KPI at specified rate
         while not rospy.is_shutdown():
-            kpi = KPIs()
-            kpi.lane_changes = 0
-            kpi.overall_avg_velocity = self.overall_avg_of_velocity_samples
-            self.pub.publish(kpi)
+            self.kpi.lane_changes = 0
+            self.kpi.overall_avg_velocity = self.overall_avg_of_velocity_samples
+            self.pub.publish(self.kpi)
             self.publish_rate.sleep()
 
     def start(self):
