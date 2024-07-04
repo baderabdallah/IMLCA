@@ -1,0 +1,3 @@
+<launch>
+    <node pkg="kpis_tracker"  type="kpis_tracker_node.py" name="kpis_tracker_node"/>  
+</launch>

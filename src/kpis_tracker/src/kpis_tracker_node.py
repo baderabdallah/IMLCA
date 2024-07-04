@@ -47,7 +47,7 @@ class KPIsTrackerNode():
 
     def _update_lane_changes(self, msg):
         # (possibly) update the count for lane changes
-        if self.current_lane and self.current_lane != msg.ego_info.lane_number:
+        if self.current_lane is not None and self.current_lane != msg.ego_info.lane_number:
             self.lane_changes += 1
         self.current_lane = msg.ego_info.lane_number
 

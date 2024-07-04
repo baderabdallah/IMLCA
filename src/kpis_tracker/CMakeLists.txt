@@ -203,7 +203,15 @@ include_directories(
 # endif()
 
 ## Add folders to be run by python nosetests
-# catkin_add_nosetests(test)
+# Add custom target for pytest
+if(CATKIN_ENABLE_TESTING)
+  catkin_add_nosetests(src/test_kpis_tracker_node.py)
+  add_custom_target(pytest ALL
+    COMMAND pytest -v ${CMAKE_CURRENT_SOURCE_DIR}/kpis_tracker
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/kpis_tracker
+  )
+endif()
+
 catkin_install_python(PROGRAMS src/kpis_tracker_node.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
