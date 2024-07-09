@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(lane_msgs)
+project(kpis_tracker)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -8,10 +8,9 @@ project(lane_msgs)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  roscpp
+  lane_msgs
   rospy
   std_msgs
-  message_generation
 )
 
 ## System dependencies are found with CMake's conventions
@@ -21,7 +20,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
-# catkin_python_setup()
+catkin_python_setup()
 
 ################################################
 ## Declare ROS messages, services and actions ##
@@ -48,16 +47,11 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-add_message_files(
-  FILES
-  Mlc.msg
-  Pose.msg
-  ScenarioData.msg
-  Trajectory.msg
-  VehicleInfo.msg
-  EgoInfo.msg
-  KPIs.msg
-)
+# add_message_files(
+#   FILES
+#   Message1.msg
+#   Message2.msg
+# )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -74,10 +68,10 @@ add_message_files(
 # )
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-  DEPENDENCIES
-  std_msgs
-)
+# generate_messages(
+#   DEPENDENCIES
+#   std_msgs
+# )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -110,8 +104,8 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES lane_msgs
- CATKIN_DEPENDS message_runtime std_msgs
+#  LIBRARIES speed_visualizer
+#  CATKIN_DEPENDS rospy std_msgs
 #  DEPENDS system_lib
 )
 
@@ -128,7 +122,7 @@ include_directories(
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/lane_msgs.cpp
+#   src/${PROJECT_NAME}/speed_visualizer.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -139,7 +133,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/lane_msgs_node.cpp)
+# add_executable(${PROJECT_NAME}_node src/speed_visualizer_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -203,10 +197,21 @@ include_directories(
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_lane_msgs.cpp)
-# if(TARGET ${PROJECT_NAME}-test)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_speed_visualizer.cpp)
+# if(TARGET ${PROJECT_NAME}-test)src/speed_visualizer/CMakeLists.txt
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
 
 ## Add folders to be run by python nosetests
-# catkin_add_nosetests(test)
+# Add custom target for pytest
+if(CATKIN_ENABLE_TESTING)
+  catkin_add_nosetests(src/test_kpis_tracker_node.py)
+  add_custom_target(pytest ALL
+    COMMAND pytest -v ${CMAKE_CURRENT_SOURCE_DIR}/kpis_tracker
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/kpis_tracker
+  )
+endif()
+
+catkin_install_python(PROGRAMS src/kpis_tracker_node.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)

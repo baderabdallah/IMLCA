@@ -7,5 +7,7 @@
     
     <node pkg="keyboard_listener"  type="keyboard_listener" name="keyboard_listener"/>
 
-    <node pkg="speed_visualizer"  type="speed_visualizer_node.py" name="speed_visualizer_node"/>    
+    <node pkg="speed_visualizer"  type="speed_visualizer_node.py" name="speed_visualizer_node"/>
+
+    <node pkg="kpis_tracker"  type="kpis_tracker_node.py" name="kpis_tracker_node"/>  
 </launch>
