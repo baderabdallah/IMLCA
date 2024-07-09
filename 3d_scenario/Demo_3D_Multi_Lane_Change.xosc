@@ -40,7 +40,11 @@
 
     <ParameterDeclaration name="Car10InitDistance_m" parameterType="double" value="260"/>
     <ParameterDeclaration name="Car10InitSpeed_mps" parameterType="double" value="13.5"/>
-    <ParameterDeclaration name="Car10LaneSelection" parameterType="integer" value="1"/>   
+    <ParameterDeclaration name="Car10LaneSelection" parameterType="integer" value="1"/>
+    
+    <ParameterDeclaration name="Car11InitDistance_m" parameterType="double" value="125"/>
+    <ParameterDeclaration name="Car11InitSpeed_mps" parameterType="double" value="13.0"/>
+    <ParameterDeclaration name="Car11LaneSelection" parameterType="integer" value="1"/> 
 
     
 
@@ -48,7 +52,7 @@
     <ParameterDeclaration name="AdersaryLaneSelection" parameterType="integer" value="2"/>
 
     <ParameterDeclaration name="AdersaryLaneChangeDirection0" parameterType="integer" value="1"/>
-    <ParameterDeclaration name="AdersaryLaneChangeTime0" parameterType="integer" value="7.5"/>
+    <ParameterDeclaration name="AdersaryLaneChangeTime0" parameterType="integer" value="7"/>
 
     <ParameterDeclaration name="AdersaryLaneChangeDirection1" parameterType="integer" value="1"/>
     <ParameterDeclaration name="AdersaryLaneChangeTime1" parameterType="integer" value="9.5"/>
@@ -57,7 +61,7 @@
     <ParameterDeclaration name="AdersaryLaneChangeTime2" parameterType="integer" value="13"/>
 
     <ParameterDeclaration name="AdersaryLaneChangeDirection3" parameterType="integer" value="1"/>
-    <ParameterDeclaration name="AdersaryLaneChangeTime3" parameterType="integer" value="16"/>
+    <ParameterDeclaration name="AdersaryLaneChangeTime3" parameterType="integer" value="15.5"/>
 
     <ParameterDeclaration name="AdersaryLaneChangeDirection4" parameterType="integer" value="-1"/>
     <ParameterDeclaration name="AdersaryLaneChangeTime4" parameterType="integer" value="17.5"/>
@@ -164,6 +168,10 @@
     </ScenarioObject>
 
     <ScenarioObject name="car10">
+            <CatalogReference catalogName="VehicleCatalog" entryName="vehicle.tesla.model3"></CatalogReference>
+    </ScenarioObject>
+
+    <ScenarioObject name="car11">
             <CatalogReference catalogName="VehicleCatalog" entryName="vehicle.tesla.model3"></CatalogReference>
     </ScenarioObject>
 
@@ -451,7 +459,29 @@
               <SpeedAction>
                 <SpeedActionDynamics dynamicsShape="step" dynamicsDimension="time" value="0.1" />
                 <SpeedActionTarget>
-                  <AbsoluteTargetSpeed value="$Car9InitSpeed_mps" />
+                  <AbsoluteTargetSpeed value="$Car10InitSpeed_mps" />
+                </SpeedActionTarget>
+              </SpeedAction>
+            </LongitudinalAction>
+          </PrivateAction>
+        </Private>
+
+        <Private entityRef="car11">
+          <PrivateAction>
+            <TeleportAction>
+              <Position>
+                <RelativeLanePosition entityRef="hero" dLane="$Car11LaneSelection" ds="$Car11InitDistance_m" offset="0">
+                  <Orientation type="relative"/>
+                </RelativeLanePosition>
+              </Position>
+            </TeleportAction>
+          </PrivateAction>
+          <PrivateAction>
+            <LongitudinalAction>
+              <SpeedAction>
+                <SpeedActionDynamics dynamicsShape="step" dynamicsDimension="time" value="0.1" />
+                <SpeedActionTarget>
+                  <AbsoluteTargetSpeed value="$Car11InitSpeed_mps" />
                 </SpeedActionTarget>
               </SpeedAction>
             </LongitudinalAction>
