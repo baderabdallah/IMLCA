@@ -206,7 +206,8 @@ include_directories(
 # Add custom target for pytest
 if(CATKIN_ENABLE_TESTING)
   catkin_add_nosetests(src/test_kpis_tracker_node.py)
-  add_custom_target(pytest ALL
+  
+  add_custom_target(pytest 
     COMMAND pytest -v ${CMAKE_CURRENT_SOURCE_DIR}/kpis_tracker
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/kpis_tracker
   )
