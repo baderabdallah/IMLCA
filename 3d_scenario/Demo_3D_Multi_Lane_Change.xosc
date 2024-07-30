@@ -38,7 +38,7 @@
     <ParameterDeclaration name="Car9InitSpeed_mps" parameterType="double" value="13.5"/>
     <ParameterDeclaration name="Car9LaneSelection" parameterType="integer" value="-1"/>  
 
-    <ParameterDeclaration name="Car10InitDistance_m" parameterType="double" value="260"/>
+    <ParameterDeclaration name="Car10InitDistance_m" parameterType="double" value="265"/>
     <ParameterDeclaration name="Car10InitSpeed_mps" parameterType="double" value="13.5"/>
     <ParameterDeclaration name="Car10LaneSelection" parameterType="integer" value="1"/>
     
@@ -684,7 +684,7 @@
                 <PrivateAction>
                   <LateralAction>
                     <LaneChangeAction>
-                      <LaneChangeActionDynamics dynamicsShape="cubic" value="25" dynamicsDimension="distance"/>
+                      <LaneChangeActionDynamics dynamicsShape="cubic" value="40" dynamicsDimension="distance"/>
                       <LaneChangeTarget>
                         <RelativeTargetLane entityRef="adversary" value="$AdersaryLaneChangeDirection6"/>
                       </LaneChangeTarget>
@@ -732,7 +732,7 @@
                 <PrivateAction>
                   <LateralAction>
                     <LaneChangeAction>
-                      <LaneChangeActionDynamics dynamicsShape="cubic" value="25" dynamicsDimension="distance"/>
+                      <LaneChangeActionDynamics dynamicsShape="cubic" value="40" dynamicsDimension="distance"/>
                       <LaneChangeTarget>
                         <RelativeTargetLane entityRef="adversary" value="$AdersaryLaneChangeDirection8"/>
                       </LaneChangeTarget>
