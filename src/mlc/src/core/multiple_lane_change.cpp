@@ -37,8 +37,10 @@ void MultipleLaneChange::Step()
     if (kb_input_ == "Left Arrow" && ego_state_.speed > 0)
     {
         ego_state_.speed--;
+        ego_state_.speed--;
     }
     if (kb_input_ == "Right Arrow" && ego_state_.speed < 120){
+        ego_state_.speed++;
         ego_state_.speed++;
     }
 

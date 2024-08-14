@@ -51,16 +51,16 @@ class ScenarioNode:
 
 def get_vehicles_initial_info():
     vehicles_initial_info = [
-        {"lane_number": 0, "speed": 10.0, "initial_pos_x": 90.0},
-        {"lane_number": 1, "speed": 4.5, "initial_pos_x": 100.0},
-        {"lane_number": 2, "speed": 8.0, "initial_pos_x": 160.0},
-        {"lane_number": 2, "speed": 8.0, "initial_pos_x": 200.0},
-        {"lane_number": 3, "speed": 11.0, "initial_pos_x": 90.0},
-        {"lane_number": 3, "speed": 7.0, "initial_pos_x": 140.0},
-        {"lane_number": 3, "speed": 11.0, "initial_pos_x": 150.0},
-        {"lane_number": 0, "speed": 10.0, "initial_pos_x": 170.0},
-        {"lane_number": 0, "speed": 10.0, "initial_pos_x": 140.0},
-        {"lane_number": 0, "speed": 10.0, "initial_pos_x": 120.0},
+        {"lane_number": 2, "speed": 13.0, "initial_pos_x": 70.0},
+        {"lane_number": 3, "speed": 13.0, "initial_pos_x": 60.0},
+        {"lane_number": 2, "speed": 13.0, "initial_pos_x": 190.0},
+        {"lane_number": 1, "speed": 14.5, "initial_pos_x": 100.0},
+        {"lane_number": 1, "speed": 13.0, "initial_pos_x": 150.0},
+        {"lane_number": 0, "speed": 14.5, "initial_pos_x": 100.0},
+        {"lane_number": 3, "speed": 13.5, "initial_pos_x": 250.0},
+        {"lane_number": 0, "speed": 13.5, "initial_pos_x": 220.0},
+        {"lane_number": 2, "speed": 13.5, "initial_pos_x": 260.0},
+        {"lane_number": 2, "speed": 13.0, "initial_pos_x": 125.0},
     ]
 
     return vehicles_initial_info

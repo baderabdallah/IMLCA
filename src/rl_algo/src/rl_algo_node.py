@@ -54,7 +54,7 @@ class RL:
             tensorboard_log="models/model",
         )
         # Run the trained model and record video
-        self.model = DQN.load("/home/adam/lca/imlca_2/src/rl_algo/src/models/model", env=env)
+        self.model = DQN.load("/home/abader/imlca/src/rl_algo/src/models/model", env=env)
 
     def get_action(self, observation):
         action, _states = self.model.predict(observation, deterministic=True)
@@ -74,7 +74,7 @@ class RLAlgoNode:
         )
 
         topic_name = "keyboard_input"
-        self.action_publisher = rospy.Publisher(topic_name, std_msgs.msg.String, queue_size=10)
+        self.action_publisher = rospy.Publisher(topic_name, std_msgs.msg.String, queue_size=1)
 
     def observation_callback(self, msg):
         # Extract the array data and transform it to a NumPy array
@@ -107,9 +107,9 @@ class RLAlgoNode:
 
         rospy.loginfo(f"TEST: {dict_of_list}")
         action = self.rl.get_action(dict_of_list)
-        if action != int(1):
-            msg = convert_action_to_string(action)
-            self.action_publisher.publish(msg)
+        
+        msg = convert_action_to_string(action)
+        self.action_publisher.publish(msg)
 
     def get_object_to_dict(self, object):
         return {

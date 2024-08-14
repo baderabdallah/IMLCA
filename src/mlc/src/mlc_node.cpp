@@ -79,6 +79,7 @@ class Mlc
 
     void initialize() {
       ego_state_.speed = parameters_.ego_speed;
+      ego_state_.lane_id = 3;
     }
 
     void publish(const ros::TimerEvent &event)

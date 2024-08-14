@@ -40,7 +40,7 @@ class StateConverter
           init_ = true;
         }
         mlc_subscriber_ = nh->subscribe("/mlc/mlc_data", 10, &StateConverter::callbackMlcTopic, this);
-        transformed_environment_publisher_ = nh->advertise<std_msgs::Float32MultiArray>("/mlc/transformed_state", 10);
+        transformed_environment_publisher_ = nh->advertise<std_msgs::Float32MultiArray>("/mlc/transformed_state", 1);
     }
 
     void initialize() {
