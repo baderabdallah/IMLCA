@@ -10,18 +10,7 @@ Link to simulation video: https://dxcportal.sharepoint.com/:v:/r/sites/ADFCproje
 
 ## Description
 
-The system guides the ego vehicle to perform a multi-lane change in order to reach a predefined target lane at least two lanes away from the initial position of the ego vehicle.
-
-The multi-lane change includes two main parts,
-- The decision to make a lane change
-- The algorithm to make the lane change.
-
-The decision to make a lane change depends mainly on a collision check between the computed trajectory and the expected trajectory of near vehicle. while the lane change is a 3rd degree polynomial function that calculates the lateral change of distance required to perform the lane change over time.
-
-A single lane change is done over a predefined distance, based on which the trajectory is computed. eventually the changing lane trajectory is d(t)=At^2+Bt+C, where d is the distance at each time step, t is time, and the coefficients are calculated based on how fast the lane change is to be performed.
-
-
-![alt text](description/architecture.png)
+TODO: Update description
 
 ## Installing required packages
 Install the 'Panda3D' framework, version 1.10.14 or above
@@ -60,11 +49,6 @@ $ roslaunch multi_lane_assist.launch
     - Subscriptions:
         - /mlc/scenario_information [lane_msgs/ScenarioData]
 
-
-  - visualizer_node
-    - Subscriptions:
-        - /mlc/mlc_data [lane_msgs/Mlc]
-
   - kpi_node
     - Publications:
        - /kpi [lane_msgs/KPIs]
@@ -72,7 +56,5 @@ $ roslaunch multi_lane_assist.launch
     - Subscriptions:
         - /mlc/mlc_data [lane_msgs/Mlc]
 
-TODO: add scene viewer node
-
-![alt text](description/ros_node_structure.png)
+TODO: add description of scene viewer node
 
