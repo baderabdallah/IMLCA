@@ -8,30 +8,30 @@ from include.constants import *
 from include.speed_visual import SpeedVisual
 
 
-class SpeedVisualizerNode():
+class SpeedVisualizerNode:
     """
     ROS node implementing class for receiving and plotting the published MLC data.
     """
 
     def __init__(self):
         mlc_topic = "/mlc/mlc_data"
-        
+
         self.speed_visual = SpeedVisual()
-        
-        self.mlc_subscriber = rospy.Subscriber(
-            mlc_topic, Mlc, self.mlc_callback
+
+        self.mlc_subscriber = rospy.Subscriber(mlc_topic, Mlc, self.mlc_callback)
+
+        self.anim = FuncAnimation(
+            self.speed_visual._fig, self.update_plot, cache_frame_data=False
         )
-        
-        self.anim = FuncAnimation(self.speed_visual._fig, self.update_plot, cache_frame_data=False)
 
     def mlc_callback(self, msg):
         self.latest_msg = msg
 
-
     def update_plot(self, _):
-        if hasattr(self, 'latest_msg'):
-            self.speed_visual.draw_speedometer_visual(self.latest_msg.ego_info.velocity_x)
-    
+        if hasattr(self, "latest_msg"):
+            self.speed_visual.draw_speedometer_visual(
+                self.latest_msg.ego_info.velocity_x
+            )
 
     def spin(self):
         plt.show()
@@ -39,9 +39,9 @@ class SpeedVisualizerNode():
 
 
 # Main function.
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-    rospy.init_node('speed_visualizer_node')
+    rospy.init_node("speed_visualizer_node")
     try:
         visualizer_node = SpeedVisualizerNode()
         visualizer_node.spin()

@@ -8,16 +8,16 @@ WINDOW_WIDTH = 1600
 WINDOW_HEIGHT = 900
 
 # Lengths
-LANE_WIDTH = 4.0     # m
-LOOK_BEHIND = 20.0   # m
-LOOK_AHEAD = 100.0   # m
-CAR_LENGTH = 4.0     # m
-CAR_WIDTH = 2.0      # m
+LANE_WIDTH = 4.0  # m
+LOOK_BEHIND = 20.0  # m
+LOOK_AHEAD = 100.0  # m
+CAR_LENGTH = 4.0  # m
+CAR_WIDTH = 2.0  # m
 
 # All about the look
 FIGURE_TITLE = "MultiLaneChange Assistant visualization"
-FIGURE_WIDTH = 16    # inch
-FIGURE_HEIGHT = 5    # inch
+FIGURE_WIDTH = 16  # inch
+FIGURE_HEIGHT = 5  # inch
 
 EGO_COLOR = "red"
 OTHER_CAR_COLOR = "steelblue"
@@ -26,7 +26,7 @@ STREET_COLOR = "dimgray"
 
 LANE_COLOR = "white"
 LANE_STYLE = "dashed"
-LANE_LINE_WIDTH = 4.0     # pixel
+LANE_LINE_WIDTH = 4.0  # pixel
 
 TRAJECTORY_COLOR = "firebrick"
 TRAJECTORY_STYLE = "solid"

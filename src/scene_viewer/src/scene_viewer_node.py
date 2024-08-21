@@ -5,7 +5,8 @@ from lane_msgs.msg import Mlc
 from scene_viewer.constants import *
 from scene_viewer.scene_viewer import SceneViewer
 
-class SceneViewerNode():
+
+class SceneViewerNode:
     """
     ROS node implementing class for receving and plotting the published MLC data.
     """
@@ -14,26 +15,26 @@ class SceneViewerNode():
         mlc_topic = "/mlc/mlc_data"
 
         self.scene_viewer = SceneViewer()
-        
-        self.mlc_subscriber = rospy.Subscriber(
-            mlc_topic, Mlc, self.mlc_callback)
+
+        self.mlc_subscriber = rospy.Subscriber(mlc_topic, Mlc, self.mlc_callback)
 
     def mlc_callback(self, msg):
         self.latest_msg = msg
         self.update_plot(frame=None)
 
     def update_plot(self, frame):
-        if hasattr(self, 'latest_msg'):
+        if hasattr(self, "latest_msg"):
             self.scene_viewer.update(self.latest_msg)
 
     def spin(self):
         self.scene_viewer.run()
         rospy.spin()
 
-# Main function.
-if __name__ == '__main__':
 
-    rospy.init_node('scene_viewer_node')
+# Main function.
+if __name__ == "__main__":
+
+    rospy.init_node("scene_viewer_node")
     try:
         scene_viewer_node = SceneViewerNode()
         scene_viewer_node.spin()

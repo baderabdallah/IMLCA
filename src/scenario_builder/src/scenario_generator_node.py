@@ -5,6 +5,7 @@ import std_msgs.msg
 from lane_msgs.msg import ScenarioData
 from lane_msgs.msg import VehicleInfo
 
+
 class ScenarioGenerator:
     def __init__(self, number_of_lanes, vehicles_initial_info):
         self.number_of_lanes = number_of_lanes
@@ -16,8 +17,10 @@ class ScenarioGenerator:
         for id, vehicle in enumerate(self.vehicle_info):
             vehicle_position = VehicleInfo()
             vehicle_position.lane_number = vehicle["lane_number"]
-            vehicle_position.pos_x = (self.counter * vehicle["speed"] * 0.1) + vehicle["initial_pos_x"]
-            vehicle_position.id  = id
+            vehicle_position.pos_x = (self.counter * vehicle["speed"] * 0.1) + vehicle[
+                "initial_pos_x"
+            ]
+            vehicle_position.id = id
             vehicle_position.velocity_x = vehicle["speed"]
 
             vehicle_current_positions.append(vehicle_position)
@@ -35,12 +38,14 @@ class ScenarioGenerator:
 
         return scenario_data
 
+
 class ScenarioNode:
     def __init__(self):
-        self.rate = rospy.Rate(5) # 10hz
+        self.rate = rospy.Rate(5)  # 10hz
         topic_name = "mlc/scenario_information"
-        self.scenario_publisher = rospy.Publisher(topic_name, ScenarioData, queue_size=10)
-
+        self.scenario_publisher = rospy.Publisher(
+            topic_name, ScenarioData, queue_size=10
+        )
 
     def publish_scenario(self, scenario_generator):
         while not rospy.is_shutdown():
@@ -67,15 +72,15 @@ def get_vehicles_initial_info():
 
 
 # Main function.
-if __name__ == '__main__':
-    rospy.init_node('scenario_generator')
+if __name__ == "__main__":
+    rospy.init_node("scenario_generator")
     try:
 
         scenario_node = ScenarioNode()
 
         number_of_lanes = 4
-        vehicles_initial_info =  get_vehicles_initial_info()
-        ego_speed = 16.66 # TODO: is this really used? See 90kph in mlc files.
+        vehicles_initial_info = get_vehicles_initial_info()
+        ego_speed = 16.66  # TODO: is this really used? See 90kph in mlc files.
         scenario_generator = ScenarioGenerator(number_of_lanes, vehicles_initial_info)
 
         scenario_node.publish_scenario(scenario_generator)
