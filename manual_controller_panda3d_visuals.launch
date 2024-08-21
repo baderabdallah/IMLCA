@@ -1,13 +1,13 @@
 <launch>
-    <node pkg="scenario_builder"  type="scenario_generator_node.py" name="scenario_generator_node"/>
+    <node pkg="scenario_builder" type="scenario_generator_node.py" name="scenario_generator_node" />
 
-    <node pkg="mlc"  type="mlc_node" name="mlc_node"/>
+    <node pkg="mlc" type="mlc_node" name="mlc_node" />
 
-    <node pkg="scene_viewer"  type="scene_viewer_node.py" name="scene_viewer" output="screen"/>
+    <node pkg="scene_viewer" type="scene_viewer_node.py" name="scene_viewer" output="screen" />
 
-    <node pkg="speed_visualizer"  type="speed_visualizer_node.py" name="speed_visualizer_node"/>    
+    <node pkg="speed_visualizer" type="speed_visualizer_node.py" name="speed_visualizer_node" />
 
-    <node pkg="keyboard_listener"  type="keyboard_listener" name="keyboard_listener"/>
+    <node pkg="keyboard_listener" type="keyboard_listener" name="keyboard_listener" />
 
-    <node pkg="kpis_tracker"  type="kpis_tracker_node.py" name="kpis_tracker_node"/>  
+    <node pkg="kpis_tracker" type="kpis_tracker_node.py" name="kpis_tracker_node" />
 </launch>
