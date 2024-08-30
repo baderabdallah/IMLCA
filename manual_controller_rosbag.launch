@@ -1,20 +1,20 @@
 <launch>
-    <node pkg="scenario_builder"  type="scenario_generator_node.py" name="scenario_generator_node"/>
+    <node pkg="scenario_builder" type="scenario_generator_node.py" name="scenario_generator_node" />
 
-    <node pkg="mlc"  type="mlc_node" name="mlc_node"/>
+    <node pkg="mlc" type="mlc_node" name="mlc_node" />
 
-    <node pkg="state_converter"  type="state_converter_node" name="state_converter_node"/>
+    <node pkg="state_converter" type="state_converter_node" name="state_converter_node" />
 
-    <node pkg="visualizer"  type="visualizer_node.py" name="visualizer_node"/>
+    <node pkg="scene_viewer" type="scene_viewer_node.py" name="scene_viewer" output="screen" />
 
-    <node pkg="keyboard_listener"  type="keyboard_listener" name="keyboard_listener"/>
+    <node pkg="keyboard_listener" type="keyboard_listener" name="keyboard_listener" />
 
-    <node pkg="speed_visualizer"  type="speed_visualizer_node.py" name="speed_visualizer_node"/>
+    <node pkg="speed_visualizer" type="speed_visualizer_node.py" name="speed_visualizer_node" />
 
-    <node pkg="sensor_simulation"  type="sensor_simulation_node.py" name="sensor_simulation_node"/>
 
-    <node pkg="rl_algo"  type="rl_algo_node.py" name="rl_algo_node"/>
+    <node pkg="rl_algo" type="rl_algo_node.py" name="rl_algo_node" />
 
-    <!-- <node name="record" pkg="rosbag" type="record" args="-a -O /tmp/manual_controller_output.bag"/> -->
+    <!-- <node name="record" pkg="rosbag" type="record" args="-a -O
+    /tmp/manual_controller_output.bag"/> -->
 
 </launch>
