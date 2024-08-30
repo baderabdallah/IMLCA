@@ -20,6 +20,7 @@ class MultipleLaneChange
 
     Trajectory GetEgoTrajectory() const;
     EgoState GetEgoState() const;
+    bool isActionPossible() const;
 
   private:
     enum class MotionStates
@@ -54,6 +55,7 @@ class MultipleLaneChange
     Trajectory ego_trajectory_{};
     MotionStateMachine state_machine_{MotionStates::kFollowLane};
     std::string kb_input_ = "";
+    int following_lane_counter{0};
 };
 
 #endif // MULTIPLE_LANE_CHANGE_H

@@ -18,6 +18,9 @@ include_directories(
   src
 )
 
+include_directories(src/core)
+include_directories(src)
+
 add_executable(mlc_node
     src/mlc_node.cpp
     src/core/follow_lane_trajectory_planner.cpp

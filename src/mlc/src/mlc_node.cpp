@@ -79,6 +79,7 @@ class Mlc
 
     void initialize() {
       ego_state_.speed = parameters_.ego_speed;
+      ego_state_.lane_id = 3;
     }
 
     void publish(const ros::TimerEvent &event)
@@ -103,8 +104,9 @@ class Mlc
     {
       ROS_INFO("Received key: %s", msg->data.c_str());
 
-      multiple_lane_change_->SetKeyboardInput(msg->data);
-      
+      if (multiple_lane_change_->isActionPossible()) {
+        multiple_lane_change_->SetKeyboardInput(msg->data);
+      }
       return;
     }
 
