@@ -2,7 +2,6 @@
 
 import rospy
 import std_msgs.msg
-from lane_msgs.msg import ObjectList
 from std_msgs.msg import Float32MultiArray
 
 import gymnasium as gym
@@ -65,10 +64,7 @@ class RLAlgoNode:
     def __init__(self, rl: RL):
 
         self.rl = rl
-        self.object_list = []
-        # self.object_list_subscriber = rospy.Subscriber(
-        #     "sensor_simulation/object_list", ObjectList, self.object_list_callback
-        # )
+        
         self.observation_subscriber = rospy.Subscriber(
             "/mlc/transformed_state", Float32MultiArray, self.observation_callback
         )
@@ -91,34 +87,6 @@ class RLAlgoNode:
             msg = convert_action_to_string(action)
             self.action_publisher.publish(msg)
 
-    def object_list_callback(self, msg):
-
-        self.object_list = [self.get_object_to_dict(object) for object in msg.object_list]
-
-        if len(self.object_list) > 5:
-            self.object_list = self.object_list[:5]
-
-        dict_of_list =  np.array([[dic[k] for dic in self.object_list] for k in self.object_list[0]])
-
-        for i in range(len(dict_of_list)):
-            dict_of_list[i] = dict_of_list[i] / max(dict_of_list[i])
-
-        dict_of_list = dict_of_list.T
-
-        rospy.loginfo(f"TEST: {dict_of_list}")
-        action = self.rl.get_action(dict_of_list)
-        
-        msg = convert_action_to_string(action)
-        self.action_publisher.publish(msg)
-
-    def get_object_to_dict(self, object):
-        return {
-            "presence": 1,
-            "x": object.x,
-            "y": object.y,
-            "vx": object.vx,
-            "vy": object.vy,
-        }
 
 
 
