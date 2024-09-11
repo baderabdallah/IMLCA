@@ -14,6 +14,8 @@
 
     <node pkg="rl_algo" type="rl_algo_node.py" name="rl_algo_node" />
 
+    <node pkg="kpis_tracker" type="kpis_tracker_node.py" name="kpis_tracker_node" />
+
     <!-- <node name="record" pkg="rosbag" type="record" args="-a -O
     /tmp/manual_controller_output.bag"/> -->
 

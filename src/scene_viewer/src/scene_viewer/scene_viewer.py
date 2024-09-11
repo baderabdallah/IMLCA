@@ -107,6 +107,8 @@ class SceneViewer(ShowBase):
 
             if not self._initialize_gui:
                 self.__update_gui(self.latest_msg)
+                if hasattr(self, "kpi_msg"):
+                    self.__update_gui_kpi(self.kpi_msg)
 
         return Task.cont
 
@@ -636,10 +638,15 @@ class SceneViewer(ShowBase):
     def __update_gui(self, msg):
         """TODO"""
         speed = msg.ego_info.velocity_x
-
         self.speed_info["text"] = f"Speed: {speed} km/h"
 
-    def update(self, msg):
+    def __update_gui_kpi(self, kpi_msg):
+        """TODO"""
+        number_lane_change = kpi_msg.lane_changes        
+        self.target_lane_info["text"] = f"Lane changes: {number_lane_change}"
+
+        
+    def update(self, msg, kpi_msg):
         if hasattr(self, "latest_msg"):
             self._rebuild_road = (
                 self.latest_msg.scenario_data.number_of_lanes
@@ -647,6 +654,7 @@ class SceneViewer(ShowBase):
             )
 
         self.latest_msg = msg
+        self.kpi_msg = kpi_msg
 
     def __make_plane(self, size=(1.0, 1.0), texture_repeat=(1, 1)):
         """Make a plane geometry.

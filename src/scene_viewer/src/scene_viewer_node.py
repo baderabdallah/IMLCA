@@ -2,6 +2,7 @@
 
 import rospy
 from lane_msgs.msg import Mlc
+from lane_msgs.msg import KPIs
 from scene_viewer.constants import *
 from scene_viewer.scene_viewer import SceneViewer
 
@@ -13,18 +14,26 @@ class SceneViewerNode:
 
     def __init__(self):
         mlc_topic = "/mlc/mlc_data"
+        kpi_topic = "/kpi"
 
         self.scene_viewer = SceneViewer()
 
         self.mlc_subscriber = rospy.Subscriber(mlc_topic, Mlc, self.mlc_callback)
+        self.kpi_subscriber = rospy.Subscriber(kpi_topic, KPIs, self.kpi_callback)
 
     def mlc_callback(self, msg):
         self.latest_msg = msg
         self.update_plot(frame=None)
 
+    def kpi_callback(self, msg):
+        self.kpi_msg = msg
+        print("Here KPI msg received")
+        self.update_plot(frame=None)
+
+        
     def update_plot(self, frame):
-        if hasattr(self, "latest_msg"):
-            self.scene_viewer.update(self.latest_msg)
+        if hasattr(self, "latest_msg") and hasattr(self, "kpi_msg"):
+            self.scene_viewer.update(self.latest_msg, self.kpi_msg)
 
     def spin(self):
         self.scene_viewer.run()
