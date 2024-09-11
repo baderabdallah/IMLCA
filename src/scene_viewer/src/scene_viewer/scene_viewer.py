@@ -645,6 +645,8 @@ class SceneViewer(ShowBase):
         number_lane_change = kpi_msg.lane_changes        
         self.target_lane_info["text"] = f"Lane changes: {number_lane_change}"
 
+        avg_speed = kpi_msg.overall_avg_velocity
+        self.lane_change_status_info["text"] = f"Scenario avg speed: {avg_speed:.2f}"
         
     def update(self, msg, kpi_msg):
         if hasattr(self, "latest_msg"):
