@@ -56,12 +56,14 @@ class ScenarioNode:
 
 def get_vehicles_initial_info():
     vehicles_initial_info = [
+        {"lane_number": 3, "speed": 13.0, "initial_pos_x": -200},
         {"lane_number": 2, "speed": 13.0, "initial_pos_x": 70.0},
         {"lane_number": 3, "speed": 13.0, "initial_pos_x": 60.0},
         {"lane_number": 2, "speed": 13.0, "initial_pos_x": 190.0},
         {"lane_number": 1, "speed": 14.5, "initial_pos_x": 100.0},
         {"lane_number": 1, "speed": 13.0, "initial_pos_x": 150.0},
         {"lane_number": 0, "speed": 14.5, "initial_pos_x": 100.0},
+        {"lane_number": 0, "speed": 14.5, "initial_pos_x": 50.0},
         {"lane_number": 3, "speed": 13.5, "initial_pos_x": 250.0},
         {"lane_number": 0, "speed": 13.5, "initial_pos_x": 220.0},
         {"lane_number": 2, "speed": 13.5, "initial_pos_x": 260.0},
