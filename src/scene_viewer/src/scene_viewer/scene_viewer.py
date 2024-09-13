@@ -41,8 +41,8 @@ from scene_viewer.objects.car import Car
 from scene_viewer.objects.trajectory import Trajectory
 from scene_viewer.objects.scene2D import Scene2D
 
-ego_screen_position_offset = -40
-camera_position_z = 120
+ego_screen_position_offset = -27
+camera_position_z = 70
 
 
 class SceneViewer(ShowBase):

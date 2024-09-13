@@ -27,7 +27,6 @@ class SceneViewerNode:
 
     def kpi_callback(self, msg):
         self.kpi_msg = msg
-        print("Here KPI msg received")
         self.update_plot(frame=None)
 
         
