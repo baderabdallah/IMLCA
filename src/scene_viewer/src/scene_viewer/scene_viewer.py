@@ -41,6 +41,9 @@ from scene_viewer.objects.car import Car
 from scene_viewer.objects.trajectory import Trajectory
 from scene_viewer.objects.scene2D import Scene2D
 
+ego_screen_position_offset = -40
+camera_position_z = 120
+
 
 class SceneViewer(ShowBase):
     def __init__(self):
@@ -113,8 +116,8 @@ class SceneViewer(ShowBase):
         return Task.cont
 
     def __move_camera(self, height=50, target=Vec3()):
-        self.camera.setPos(target.x, self._road_center_y_position, height)
-        self.camera.lookAt((target.x, self._road_center_y_position, 0), (0, 0, 1))
+        self.camera.setPos(target.x - ego_screen_position_offset, self._road_center_y_position, height)
+        self.camera.lookAt((target.x - ego_screen_position_offset, self._road_center_y_position, 0), (0, 0, 1))
 
     def __create_plane(
         self,
@@ -341,7 +344,7 @@ class SceneViewer(ShowBase):
             self._on_screen_ego.reparentTo(self._cars)
             self._on_screen_ego.setPos(ego_position)
             self._on_screen_ego.setH(self._ego.getH() + ego_rotation_yaw)
-            self.__move_camera(60, ego_position)
+            self.__move_camera(camera_position_z, ego_position)
             self.__show_ego_trajectory(ego_trajectory, 2)
         else:
             self._on_screen_ego.detachNode()
