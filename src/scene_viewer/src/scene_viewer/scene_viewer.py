@@ -481,8 +481,10 @@ class SceneViewer(ShowBase):
         return win_size.x == WINDOW_WIDTH and win_size.y == WINDOW_HEIGHT
 
     def __init_gui(self):
+        
+        z_offset = 0.025
         frame_size = Vec2(
-            (self.a2dRight - self.a2dLeft) * 0.97, (self.a2dTop - self.a2dBottom) * 0.2
+            (self.a2dRight - self.a2dLeft) * 0.97, (self.a2dTop - self.a2dBottom) * 0.1
         )
         self.info_frame = DirectFrame(
             parent=self.aspect2d,
@@ -493,7 +495,7 @@ class SceneViewer(ShowBase):
                 -frame_size.y * 0.5,
                 frame_size.y * 0.5,
             ),
-            pos=(0, 0, self.a2dBottom + frame_size.y * 0.5 + 0.025),
+            pos=(0, 0, self.a2dBottom + frame_size.y * 0.5 + z_offset + 0.15),
         )
         pos_z = self.info_frame.getHeight() * self.info_frame.getScale().z * 0.5
 
@@ -504,35 +506,12 @@ class SceneViewer(ShowBase):
             pos=(0, 0, 0),
             scale=0.08,
         )
-        pos_x = 0.025 + 0.5 * (
+        pos_x = z_offset + 0.5 * (
             -self.info_frame.getWidth() * self.info_frame.getScale().x
             + self.speed_info.getWidth() * self.speed_info.getScale().x
         )
         pos_z -= 0.05 + self.speed_info.getHeight() * self.speed_info.getScale().z * 0.5
         self.speed_info.setPos(Vec3(pos_x, 0, pos_z))
-
-        self.lane_change_decision_info = DirectFrame(
-            parent=self.info_frame,
-            text="Lane change needed: Yes",
-            frameColor=(1, 1, 1, 0),
-            pos=(0, 0, 0),
-            scale=0.08,
-        )
-        pos_x = 0.025 + 0.5 * (
-            -self.info_frame.getWidth() * self.info_frame.getScale().x
-            + self.lane_change_decision_info.getWidth()
-            * self.lane_change_decision_info.getScale().x
-        )
-        pos_z -= (
-            0.05
-            + (
-                self.speed_info.getHeight() * self.speed_info.getScale().z
-                + self.lane_change_decision_info.getHeight()
-                * self.lane_change_decision_info.getScale().z
-            )
-            * 0.5
-        )
-        self.lane_change_decision_info.setPos(Vec3(pos_x, 0, pos_z))
 
         self.target_lane_info = DirectFrame(
             parent=self.info_frame,
@@ -541,22 +520,11 @@ class SceneViewer(ShowBase):
             pos=(0, 0, 0),
             scale=0.08,
         )
-        pos_x = 0.025 + 0.5 * (
+        pos_x = 1.3 + z_offset + 0.5 * (
             -self.info_frame.getWidth() * self.info_frame.getScale().x
             + self.target_lane_info.getWidth() * self.target_lane_info.getScale().x
         )
-        pos_z -= (
-            0.05
-            + (
-                self.lane_change_decision_info.getHeight()
-                * self.lane_change_decision_info.getScale().z
-                + self.target_lane_info.getHeight() * self.target_lane_info.getScale().z
-            )
-            * 0.5
-        )
         self.target_lane_info.setPos(Vec3(pos_x, 0, pos_z))
-
-        pos_z = self.info_frame.getHeight() * self.info_frame.getScale().z * 0.5
 
         self.lane_change_status_info = DirectFrame(
             parent=self.info_frame,
@@ -567,76 +535,16 @@ class SceneViewer(ShowBase):
         )
         pos_x = (
             self.info_frame.getPos().x
-            + 0.025
+            + z_offset
+            + 0.5
             + 0.5
             * (
                 self.lane_change_status_info.getWidth()
                 * self.lane_change_status_info.getScale().x
             )
         )
-        pos_z -= (
-            0.05
-            + self.lane_change_status_info.getHeight()
-            * self.lane_change_status_info.getScale().z
-            * 0.5
-        )
+
         self.lane_change_status_info.setPos(Vec3(pos_x, 0, pos_z))
-
-        self.lane_change_countdown_info = DirectFrame(
-            parent=self.info_frame,
-            text="Time left before lane change: 3 sec.",
-            frameColor=(1, 1, 1, 0),
-            pos=(0, 0, 0),
-            scale=0.08,
-        )
-        pos_x = (
-            self.info_frame.getPos().x
-            + 0.025
-            + 0.5
-            * (
-                self.lane_change_countdown_info.getWidth()
-                * self.lane_change_countdown_info.getScale().x
-            )
-        )
-        pos_z -= (
-            0.05
-            + (
-                self.lane_change_status_info.getHeight()
-                * self.lane_change_status_info.getScale().z
-                + self.lane_change_countdown_info.getHeight()
-                * self.lane_change_countdown_info.getScale().z
-            )
-            * 0.5
-        )
-        self.lane_change_countdown_info.setPos(Vec3(pos_x, 0, pos_z))
-
-        self.distance_to_lane_change_info = DirectFrame(
-            parent=self.info_frame,
-            text="Distance left before lane change: 4 mt.",
-            frameColor=(1, 1, 1, 0),
-            pos=(0, 0, 0),
-            scale=0.08,
-        )
-        pos_x = (
-            self.info_frame.getPos().x
-            + 0.025
-            + 0.5
-            * (
-                self.distance_to_lane_change_info.getWidth()
-                * self.distance_to_lane_change_info.getScale().x
-            )
-        )
-        pos_z -= (
-            0.05
-            + (
-                self.lane_change_countdown_info.getHeight()
-                * self.lane_change_countdown_info.getScale().z
-                + self.distance_to_lane_change_info.getHeight()
-                * self.distance_to_lane_change_info.getScale().z
-            )
-            * 0.5
-        )
-        self.distance_to_lane_change_info.setPos(Vec3(pos_x, 0, pos_z))
 
     def __update_gui(self, msg):
         """TODO"""

@@ -4,8 +4,8 @@
 @brief This file contains constants relevant to the scenario visualization.
 """
 
-WINDOW_WIDTH = 1600
-WINDOW_HEIGHT = 900
+WINDOW_WIDTH = 1920
+WINDOW_HEIGHT = 1080
 
 # Lengths
 LANE_WIDTH = 4.0  # m
