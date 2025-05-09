@@ -1,6 +1,8 @@
 # Multi Lane Change Assist
 ## 3D Simulation
-Link to simulation video: https://dxcportal.sharepoint.com/:v:/r/sites/ADFCprojectIntellignetmultilaneassist/Shared%20Documents/General/2024-07-30_16-39-01.mp4?csf=1&web=1&e=Ldv8LL
+Link to simulation video:
+
+https://dxcportal.sharepoint.com/:v:/s/ADFCprojectIntellignetmultilaneassist/EZz_U3apEfxBjqG6x12P6TcBeoNHoOj3PYLOitpiYkPjHw?e=XIvomM&nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJTdHJlYW1XZWJBcHAiLCJyZWZlcnJhbFZpZXciOiJTaGFyZURpYWxvZy1MaW5rIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXcifX0%3D
 
 ## Requirements
 - Ubuntu 20.04
