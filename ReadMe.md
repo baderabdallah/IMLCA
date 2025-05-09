@@ -2,7 +2,7 @@
 ## 3D Simulation
 Link to simulation video:
 
-[Intelligent Highway Pilot 3D Demo](https://dxcportal.sharepoint.com/:v:/r/sites/ADFCprojectIntellignetmultilaneassist/Shared%20Documents/General/Intelligent%20Highway%20Pilot%203D%20Demo.mp4?csf=1&web=1&e=AF0Zed&nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJTdHJlYW1XZWJBcHAiLCJyZWZlcnJhbFZpZXciOiJTaGFyZURpYWxvZy1MaW5rIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsIn
+[Intelligent Highway Pilot 3D Demo](https://dxcportal.sharepoint.com/:v:/r/sites/ADFCprojectIntellignetmultilaneassist/Shared%20Documents/General/Intelligent%20Highway%20Pilot%203D%20Demo.mp4?csf=1&web=1&e=AF0Zed&nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJTdHJlYW1XZWJBcHAiLCJyZWZlcnJhbFZpZXciOiJTaGFyZURpYWxvZy1MaW5rIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6
 
 ## Requirements
 - Ubuntu 20.04
