@@ -1,4 +1,13 @@
 # Multi Lane Change Assist
+ 
+## How to run (macOS GUI)
+
+From the repo root, run:
+
+```bash
+HEADLESS=0 LAUNCH_FILE=manual_controller_visuals.launch scripts/run_macos_gui.sh
+```
+
 ## 3D Simulation
 Link to simulation video:
 
