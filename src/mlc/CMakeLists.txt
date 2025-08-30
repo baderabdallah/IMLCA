@@ -30,3 +30,6 @@ add_executable(mlc_node
 )
 
 target_link_libraries(mlc_node PUBLIC ${catkin_LIBRARIES})
+
+# Ensure generated messages from dependencies (e.g., lane_msgs) are built before this target
+add_dependencies(mlc_node ${catkin_EXPORTED_TARGETS})

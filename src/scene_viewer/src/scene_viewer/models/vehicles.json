@@ -1,93 +1,93 @@
 {
     "Ego": {
         "fileName": "CartoonishSportsCar.glb",
-        "rotation": {"roll": 0.0, "pitch": 0.0, "yaw": 90.0},
+        "rotation": {"roll": 0.0, "pitch": 90.0, "yaw": 90.0},
         "scale": {"x": 0.01, "y": 0.01, "z": 0.01}
     },
     "Vehicles": [
         {
             "fileName": "Compact.glb",
-            "rotation": {"roll": 0.0, "pitch": 0.00, "yaw": 90.0},
+            "rotation": {"roll": 0.0, "pitch": 90.00, "yaw": 90.0},
             "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
         },
         {
             "fileName": "Coupe.glb",
-            "rotation": {"roll": 0.0, "pitch": 0.0, "yaw": 90.0},
+            "rotation": {"roll": 0.0, "pitch": 90.0, "yaw": 90.0},
             "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
         },
         {
             "fileName": "DeTomaso.glb",
-            "rotation": {"roll": 0.0, "pitch": 0.0, "yaw": 90.0},
+            "rotation": {"roll": 0.0, "pitch": 90.0, "yaw": 90.0},
             "scale": {"x": 0.001, "y": 0.001, "z": 0.001}
         },
         {
             "fileName": "GMCMotorhomeReimagined.glb",
-            "rotation": {"roll": 0.0, "pitch": 0.0, "yaw": 90.0},
+            "rotation": {"roll": 0.0, "pitch": 90.0, "yaw": 90.0},
             "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
         },
         {
             "fileName": "Hatchback.glb",
-            "rotation": {"roll": 0.0, "pitch": 0.0, "yaw": 90.0},
+            "rotation": {"roll": 0.0, "pitch": 90.0, "yaw": 90.0},
             "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
         },
         {
             "fileName": "JeepRenegade2016.glb",
-            "rotation": {"roll": 0.0, "pitch": 0.0, "yaw": 90.0},
+            "rotation": {"roll": 0.0, "pitch": 90.0, "yaw": 90.0},
             "scale": {"x": 1.5, "y": 1.5, "z": 1.5}
         },
         {
             "fileName": "MercedesBenz190.glb",
-            "rotation": {"roll": 0.0, "pitch": 0.0, "yaw": 90.0},
+            "rotation": {"roll": 0.0, "pitch": 90.0, "yaw": 90.0},
             "scale": {"x": 2.0, "y": 2.0, "z": 2.0}
         },
         {
             "fileName": "MercedesBenzGClass.glb",
-            "rotation": {"roll": 0.0, "pitch": 0.0, "yaw": 180.0},
+            "rotation": {"roll": 0.0, "pitch": 90.0, "yaw": 180.0},
             "scale": {"x": 0.8, "y": 0.8, "z": 0.8}
         },
         {
             "fileName": "Minivan.glb",
-            "rotation": {"roll": 0.0, "pitch": 0.0, "yaw": 90.0},
+            "rotation": {"roll": 0.0, "pitch": 90.0, "yaw": 90.0},
             "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
         },
         {
             "fileName": "Offroad.glb",
-            "rotation": {"roll": 0.0, "pitch": 0.0, "yaw": 90.0},
+            "rotation": {"roll": 0.0, "pitch": 90.0, "yaw": 90.0},
             "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
         },
         {
             "fileName": "Pickup.glb",
-            "rotation": {"roll": 0.0, "pitch": 0.0, "yaw": 90.0},
+            "rotation": {"roll": 0.0, "pitch": 90.0, "yaw": 90.0},
             "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
         },
         {
             "fileName": "Sedan.glb",
-            "rotation": {"roll": 0.0, "pitch": 0.0, "yaw": 90.0},
+            "rotation": {"roll": 0.0, "pitch": 90.0, "yaw": 90.0},
             "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
         },
         {
             "fileName": "Sport.glb",
-            "rotation": {"roll": 0.0, "pitch": 0.0, "yaw": 90.0},
+            "rotation": {"roll": 0.0, "pitch": 90.0, "yaw": 90.0},
             "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
         },
         {
             "fileName": "SUV.glb",
-            "rotation": {"roll": 0.0, "pitch": 0.0, "yaw": 90.0},
+            "rotation": {"roll": 0.0, "pitch": 90.0, "yaw": 90.0},
             "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
         },
         {
             "fileName": "Van.glb",
-            "rotation": {"roll": 0.0, "pitch": 0.0, "yaw": 90.0},
+            "rotation": {"roll": 0.0, "pitch": 90.0, "yaw": 90.0},
             "scale": {"x": 2.3, "y": 2.3, "z": 2.3}
         },
         {
             "fileName": "Wagon.glb",
-            "rotation": {"roll": 0.0, "pitch": 0.0, "yaw": 90.0},
+            "rotation": {"roll": 0.0, "pitch": 90.0, "yaw": 90.0},
             "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
         },
         {
             "fileName": "Xpander.glb",
-            "rotation": {"roll": 0.0, "pitch": 0.0, "yaw": -90.0},
+            "rotation": {"roll": 0.0, "pitch": 90.0, "yaw": -90.0},
             "scale": {"x": 1.8, "y": 1.8, "z": 1.8}
         }
     ]

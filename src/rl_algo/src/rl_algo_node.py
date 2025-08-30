@@ -36,7 +36,7 @@ class RL:
 
         env = gym.make("highway-v0", render_mode="rgb_array")
 
-        # Create the model
+        # Create the model (unused when loading a trained model below, but kept for ref)
         self.model = DQN(
             "MlpPolicy",
             env,
@@ -52,8 +52,11 @@ class RL:
             verbose=1,
             tensorboard_log="models/model",
         )
-        # Run the trained model and record video
-        self.model = DQN.load("/home/abader/imlca/src/rl_algo/src/models/model", env=env)
+        # Load trained model; path configurable via RL_MODEL_PATH env var, fallback to package-relative path
+        model_path = os.environ.get("RL_MODEL_PATH")
+        if not model_path:
+            model_path = os.path.join(node_path, "src", "models", "model")
+        self.model = DQN.load(model_path, env=env)
 
     def get_action(self, observation):
         action, _states = self.model.predict(observation, deterministic=True)

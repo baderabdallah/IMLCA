@@ -100,7 +100,8 @@ class SceneViewer(ShowBase):
             self.__init_gui()
 
         if hasattr(self, "latest_msg"):
-            if self._rebuild_road:
+            # Ensure road is initialized before adjusting
+            if self._rebuild_road or not hasattr(self, "_road_chunks"):
                 self._rebuild_road = False
                 self.__create_road(self.latest_msg)
             else:
