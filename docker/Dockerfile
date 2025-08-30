@@ -48,8 +48,10 @@ RUN pip install --no-cache-dir \
 RUN pip install --no-cache-dir \
     git+https://github.com/eleurent/rl-agents@master
 
-# Panda3D engine for 3D viewer
-RUN pip install --no-cache-dir panda3d==1.10.13
+# Panda3D engine and glTF loader for 3D viewer
+RUN pip install --no-cache-dir \
+    panda3d==1.10.13 \
+    panda3d-gltf
 
 # Create workspace layout
 RUN mkdir -p ${CATKIN_WS}/src

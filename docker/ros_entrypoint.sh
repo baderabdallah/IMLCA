@@ -21,6 +21,9 @@ else
   export MPLBACKEND=${MPLBACKEND:-Qt5Agg}
   # Ensure SDL uses X11 if available
   unset SDL_VIDEODRIVER || true
+  # Hint Panda3D to use X11/GL instead of unknown defaults
+  export PANDA_FORCE_PARASITE_BUFFER=1
+  export PRC_DATA="load-display pandagl\naux-display pandadx9\n"
 fi
 
 # If the repo is mounted at /workspace, link it into catkin src

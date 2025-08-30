@@ -6,18 +6,19 @@ services:
       dockerfile: docker/Dockerfile
     image: imlca:noetic
     environment:
-      - ROS_MASTER_URI=http://localhost:11311
-      - ROS_HOSTNAME=imlca
-      - DISPLAY
-      - QT_X11_NO_MITSHM=1
-      - LAUNCH_FILE=${LAUNCH_FILE:-manual_controller_headless.launch}
-      - HEADLESS=${HEADLESS:-1}
+      DISPLAY: ${DISPLAY}
+      QT_X11_NO_MITSHM: "1"
+      LIBGL_ALWAYS_INDIRECT: "1"
+      MESA_LOADER_DRIVER_OVERRIDE: llvmpipe
+      GALLIUM_DRIVER: llvmpipe
+      ROS_MASTER_URI: http://localhost:11311
+      ROS_HOSTNAME: imlca
+      LAUNCH_FILE: ${LAUNCH_FILE:-manual_controller_headless.launch}
+      HEADLESS: ${HEADLESS:-1}
     volumes:
       - ..:/workspace:rw
-      - /tmp/.X11-unix:/tmp/.X11-unix:rw
-  # On macOS, host network is not supported; run all nodes in one container.
-  # If you need to expose ROS master, uncomment the next lines, but note ROS 1 uses dynamic ports.
-  # ports:
-  #   - "11311:11311"
+      # On macOS we use TCP XQuartz; comment out the socket mount
+      # - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    # On macOS, host network is not supported; run all nodes in one container.
     stdin_open: true
     tty: true
