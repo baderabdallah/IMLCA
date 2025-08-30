@@ -8,7 +8,8 @@ services:
     environment:
       DISPLAY: ${DISPLAY}
       QT_X11_NO_MITSHM: "1"
-      LIBGL_ALWAYS_INDIRECT: "1"
+      # Prefer software Mesa in container
+      LIBGL_ALWAYS_SOFTWARE: "1"
       MESA_LOADER_DRIVER_OVERRIDE: llvmpipe
       GALLIUM_DRIVER: llvmpipe
       ROS_MASTER_URI: http://localhost:11311
@@ -17,8 +18,5 @@ services:
       HEADLESS: ${HEADLESS:-1}
     volumes:
       - ..:/workspace:rw
-      # On macOS we use TCP XQuartz; comment out the socket mount
-      # - /tmp/.X11-unix:/tmp/.X11-unix:rw
-    # On macOS, host network is not supported; run all nodes in one container.
     stdin_open: true
     tty: true

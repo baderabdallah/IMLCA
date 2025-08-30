@@ -41,6 +41,26 @@ from scene_viewer.objects.car import Car
 from scene_viewer.objects.trajectory import Trajectory
 from scene_viewer.objects.scene2D import Scene2D
 
+# Ensure Panda3D uses an X11-capable display in the container. Do this
+# before creating ShowBase so the window opens over XQuartz on macOS.
+try:
+    loadPrcFileData(
+        "",
+        "\n".join(
+            [
+                # OpenGL renderer (X11 via GLX in container)
+                "load-display pandagl",
+                # Software fallback if GL driver negotiation fails
+                "aux-display p3tinydisplay",
+                # Slightly safer defaults for windowing
+                "framebuffer-mode rgba double true depth true",
+            ]
+        ),
+    )
+except Exception:
+    # If PRC load fails, proceed; Panda3D will use its defaults.
+    pass
+
 ego_screen_position_offset = -27
 camera_position_z = 70
 
