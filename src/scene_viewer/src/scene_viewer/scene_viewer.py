@@ -106,7 +106,8 @@ class SceneViewer(ShowBase):
         )
         self._rebuild_road = True
         self._initialize_gui = True
-        
+        self._last_lane_number = None
+
         # Keyboard setup
         self.keyboard_pub = rospy.Publisher('/keyboard_input', String, queue_size=10)
         self.accept("w", lambda: self.keyboard_pub.publish("Up Arrow"))
@@ -517,95 +518,72 @@ class SceneViewer(ShowBase):
     def __can_initialize_gui(self):
         """Check if GUI can be initialized safely"""
         try:
-            # Check if we have a real window with properties
-            if hasattr(self.win, 'getProperties') and hasattr(self.win, 'getProperties'):
-                win_size = self.win.getProperties().getSize()
-                return win_size.x == WINDOW_WIDTH and win_size.y == WINDOW_HEIGHT
-            else:
-                # GraphicsBuffer or other non-window type - can't initialize GUI
-                rospy.loginfo("[Scene Viewer] No window available for GUI - running in offscreen mode")
-                return False
+            if hasattr(self.win, "getProperties"):
+                props = self.win.getProperties()
+                if props.getOpen() and props.getSize().getX() > 0 and props.getSize().getY() > 0:
+                    rospy.loginfo("[Scene Viewer] Valid window found. Initializing GUI.")
+                    return True
+            rospy.logwarn_once("[Scene Viewer] GUI cannot be initialized: No valid window found yet.")
+            return False
         except Exception as e:
-            rospy.logwarn(f"[Scene Viewer] Error checking window properties: {e}")
+            rospy.logwarn(f"[Scene Viewer] Error checking window properties for GUI init: {e}")
             return False
 
     def __init_gui(self):
-        z_offset = 0.025
-        frame_size = Vec2(
-            (self.a2dRight - self.a2dLeft) * 0.97, (self.a2dTop - self.a2dBottom) * 0.1
-        )
-        self.info_frame = DirectFrame(
-            parent=self.aspect2d,
-            frameColor=(1, 0, 0, 1),  # Bright red, fully opaque
-            frameSize=(
-                -frame_size.x * 0.5,
-                frame_size.x * 0.5,
-                -frame_size.y * 0.5,
-                frame_size.y * 0.5,
-            ),
-            pos=(0, 0, self.a2dBottom + frame_size.y * 0.5 + z_offset + 0.15),
-        )
-        pos_z = self.info_frame.getHeight() * self.info_frame.getScale().z * 0.5
-
-        self.speed_info = DirectFrame(
-            parent=self.info_frame,
-            text="Speed: 130 km/h",
-            frameColor=(1, 1, 1, 0),
-            pos=(0, 0, 0),
+        # Create simple velocity display at the top of the screen using OnscreenText
+        self.velocity_text = OnscreenText(
+            text="Speed: 0 km/h | Lane: 0 | Status: Initializing",
+            pos=(0, 0.9),  # Position at top of screen
             scale=0.08,
+            fg=(0, 1, 0, 1),  # Green text
+            bg=(0, 0, 0, 0.7),  # Semi-transparent black background
+            parent=self.aspect2d
         )
-        pos_x = z_offset + 0.5 * (
-            -self.info_frame.getWidth() * self.info_frame.getScale().x
-            + self.speed_info.getWidth() * self.speed_info.getScale().x
-        )
-        pos_z -= 0.05 + self.speed_info.getHeight() * self.speed_info.getScale().z * 0.5
-        self.speed_info.setPos(Vec3(pos_x, 0, pos_z))
-
-        self.target_lane_info = DirectFrame(
-            parent=self.info_frame,
-            text="Target lane: 3",
-            frameColor=(1, 1, 1, 0),
-            pos=(0, 0, 0),
+        
+        self.kpi_text = OnscreenText(
+            text="Lane Changes: 0 | Avg Speed: 0.00 km/h",
+            pos=(0, -0.9), # Position at bottom of screen
             scale=0.08,
+            fg=(0, 1, 0, 1), # Green text
+            bg=(0, 0, 0, 0.7), # Semi-transparent black background
+            parent=self.aspect2d
         )
-        pos_x = 1.3 + z_offset + 0.5 * (
-            -self.info_frame.getWidth() * self.info_frame.getScale().x
-            + self.target_lane_info.getWidth() * self.target_lane_info.getScale().x
-        )
-        self.target_lane_info.setPos(Vec3(pos_x, 0, pos_z))
-
-        self.lane_change_status_info = DirectFrame(
-            parent=self.info_frame,
-            text="Lane change status: In progress",
-            frameColor=(1, 1, 1, 0),
-            pos=(0, 0, 0),
-            scale=0.08,
-        )
-        pos_x = (
-            self.info_frame.getPos().x
-            + z_offset
-            + 0.5
-            + 0.5
-            * (
-                self.lane_change_status_info.getWidth()
-                * self.lane_change_status_info.getScale().x
-            )
-        )
-
-        self.lane_change_status_info.setPos(Vec3(pos_x, 0, pos_z))
 
     def __update_gui(self, msg):
-        """TODO"""
-        speed = msg.ego_info.velocity_x
-        self.speed_info["text"] = f"Speed: {speed} km/h"
+        """Update the top overlay with speed, lane, and status."""
+        # Extract values safely
+        speed_val = getattr(msg.ego_info, 'velocity_x', 0.0) or 0.0
+        lane_zero = getattr(msg.ego_info, 'lane_number', 0)
+
+        # Prepare display-friendly values (already in km/h; no unit conversion)
+        speed_kmh = abs(speed_val)
+        lane_disp = int(lane_zero) + 1
+
+        # Status heuristic
+        if self._last_lane_number is None:
+            status = "Initializing"
+        elif lane_zero == self._last_lane_number:
+            status = "Following"
+        else:
+            status = f"Changing ({self._last_lane_number + 1}→{lane_disp})"
+
+        # Update text
+        if hasattr(self, 'velocity_text'):
+            self.velocity_text.setText(
+                f"Speed: {speed_kmh:.1f} km/h | Lane: {lane_disp} | Status: {status}"
+            )
+
+        # Memorize
+        self._last_lane_number = lane_zero
 
     def __update_gui_kpi(self, kpi_msg):
-        """TODO"""
-        number_lane_change = kpi_msg.lane_changes        
-        self.target_lane_info["text"] = f"Lane changes: {number_lane_change}"
-
-        avg_speed = kpi_msg.overall_avg_velocity
-        self.lane_change_status_info["text"] = f"Scenario avg speed: {avg_speed:.2f}"
+        """Update bottom overlay with KPI values."""
+        if hasattr(self, 'kpi_text'):
+            lane_changes = int(getattr(kpi_msg, 'lane_changes', 0) or 0)
+            avg_ms = getattr(kpi_msg, 'overall_avg_velocity', 0.0) or 0.0
+            avg_kmh = abs(avg_ms)
+            self.kpi_text.setText(f"Lane Changes: {lane_changes} | Avg Speed: {avg_kmh:.2f} km/h")
+        
         
     def update(self, msg, kpi_msg):
         if hasattr(self, "latest_msg"):
