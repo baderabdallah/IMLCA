@@ -6,35 +6,21 @@ import rospy
 from std_msgs.msg import String
 
 from direct.directtools.DirectGeometry import LineNodePath
-from direct.gui.DirectGui import *
 from direct.gui.OnscreenText import OnscreenText
 from direct.showbase.ShowBase import ShowBase
 from direct.task import Task
-from math import pi, sin, cos
-from panda3d.core import AmbientLight, DirectionalLight, Spotlight
-from panda3d.core import (
-    AntialiasAttrib,
-    CullFaceAttrib,
-    TransparencyAttrib,
-    LightRampAttrib,
-)
 from panda3d.core import (
     GeomNode,
-    TextNode,
     NodePath,
     Geom,
-    GeomLines,
-    GeomPoints,
     GeomTriangles,
     GeomVertexData,
     GeomVertexFormat,
     GeomVertexWriter,
 )
 from panda3d.core import loadPrcFileData
-from panda3d.core import Material, Texture
-from panda3d.core import PNMImage, Fog
-from panda3d.core import RenderState
-from panda3d.core import Vec2, Vec3, Vec4, Quat, Mat4, BitMask32
+from panda3d.core import Texture
+from panda3d.core import Vec2, Vec3, Vec4, Quat
 from panda3d.core import WindowProperties
 from scene_viewer.constants import *
 from scene_viewer.helpers import *
@@ -367,7 +353,7 @@ class SceneViewer(ShowBase):
             self._cars = self._scene_root.attachNewNode("Cars")
             self._on_screen_cars.clear()
 
-        received_car_ids = dict()
+        received_car_ids = set()
         cars_to_remove = []
 
         if not self._on_screen_ego:
@@ -388,7 +374,7 @@ class SceneViewer(ShowBase):
             self._on_screen_ego_trajectory.reset()
 
         for v in msg.scenario_data.vehicles_information:
-            received_car_ids[v.id] = v.id
+            received_car_ids.add(v.id)
             car = self._on_screen_cars.get(v.id)
 
             if not car:
@@ -397,10 +383,12 @@ class SceneViewer(ShowBase):
                 ].copyTo(self._cars)
                 self._on_screen_cars[v.id] = car
 
-            car.setPos(Vec3(v.pos_x, self._lane_center_y_positions[v.lane_number], 0))
+            # Defensive check in case of out-of-range lane numbers
+            lane_idx = max(0, min(v.lane_number, len(self._lane_center_y_positions) - 1))
+            car.setPos(Vec3(v.pos_x, self._lane_center_y_positions[lane_idx], 0))
 
-        for k in self._on_screen_cars.keys():
-            if not received_car_ids.get(k):
+        for k in list(self._on_screen_cars.keys()):
+            if k not in received_car_ids:
                 car_to_remove = self._on_screen_cars.get(k)
                 if car_to_remove:
                     car_to_remove.removeNode()
@@ -539,7 +527,7 @@ class SceneViewer(ShowBase):
             bg=(0, 0, 0, 0.7),  # Semi-transparent black background
             parent=self.aspect2d
         )
-        
+
         self.kpi_text = OnscreenText(
             text="Lane Changes: 0 | Avg Speed: 0.00 km/h",
             pos=(0, -0.9), # Position at bottom of screen
@@ -548,6 +536,9 @@ class SceneViewer(ShowBase):
             bg=(0, 0, 0, 0.7), # Semi-transparent black background
             parent=self.aspect2d
         )
+        # Cache last shown strings to avoid redundant setText calls
+        self._last_velocity_text = None
+        self._last_kpi_text = None
 
     def __update_gui(self, msg):
         """Update the top overlay with speed, lane, and status."""
@@ -569,9 +560,10 @@ class SceneViewer(ShowBase):
 
         # Update text
         if hasattr(self, 'velocity_text'):
-            self.velocity_text.setText(
-                f"Speed: {speed_kmh:.1f} km/h | Lane: {lane_disp} | Status: {status}"
-            )
+            new_text = f"Speed: {speed_kmh:.1f} km/h | Lane: {lane_disp} | Status: {status}"
+            if new_text != self._last_velocity_text:
+                self.velocity_text.setText(new_text)
+                self._last_velocity_text = new_text
 
         # Memorize
         self._last_lane_number = lane_zero
@@ -582,7 +574,10 @@ class SceneViewer(ShowBase):
             lane_changes = int(getattr(kpi_msg, 'lane_changes', 0) or 0)
             avg_ms = getattr(kpi_msg, 'overall_avg_velocity', 0.0) or 0.0
             avg_kmh = abs(avg_ms)
-            self.kpi_text.setText(f"Lane Changes: {lane_changes} | Avg Speed: {avg_kmh:.2f} km/h")
+            new_text = f"Lane Changes: {lane_changes} | Avg Speed: {avg_kmh:.2f} km/h"
+            if new_text != self._last_kpi_text:
+                self.kpi_text.setText(new_text)
+                self._last_kpi_text = new_text
         
         
     def update(self, msg, kpi_msg):
