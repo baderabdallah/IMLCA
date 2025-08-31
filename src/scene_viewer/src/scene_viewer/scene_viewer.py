@@ -1,6 +1,8 @@
 import json
-import os, rospkg
+import os
 import random
+import rospkg
+import rospy
 
 from direct.directtools.DirectGeometry import LineNodePath
 from direct.gui.DirectGui import *
@@ -43,23 +45,18 @@ from scene_viewer.objects.scene2D import Scene2D
 
 # Ensure Panda3D uses an X11-capable display in the container. Do this
 # before creating ShowBase so the window opens over XQuartz on macOS.
-try:
-    loadPrcFileData(
-        "",
-        "\n".join(
-            [
-                # OpenGL renderer (X11 via GLX in container)
-                "load-display pandagl",
-                # Software fallback if GL driver negotiation fails
-                "aux-display p3tinydisplay",
-                # Slightly safer defaults for windowing
-                "framebuffer-mode rgba double true depth true",
-            ]
-        ),
-    )
-except Exception:
-    # If PRC load fails, proceed; Panda3D will use its defaults.
-    pass
+# NOTE: This is critical for Dockerized GUI apps on macOS.
+# The `load-display` setting tells Panda3D which graphics backend to use.
+# We prioritize `p3tinydisplay` (software renderer) as it is more robust
+# in environments without hardware GL, like Docker. `pandagl` is the
+# hardware-accelerated fallback.
+os.environ.setdefault("DISPLAY", ":0")
+loadPrcFileData(
+    "",
+    "load-display p3tinydisplay\n"
+    "aux-display pandagl\n"
+    "win-origin -2 -2\n"  # Hack to prevent window manager decoration issues
+)
 
 ego_screen_position_offset = -27
 camera_position_z = 70
@@ -67,7 +64,42 @@ camera_position_z = 70
 
 class SceneViewer(ShowBase):
     def __init__(self):
-        ShowBase.__init__(self)
+        try:
+            ShowBase.__init__(self)
+        except Exception as e:
+            rospy.logerr(f"[Scene Viewer] Panda3D ShowBase failed to initialize: {e}")
+            rospy.logerr(
+                "[Scene Viewer] This is a critical error, meaning the application could not create a graphics window."
+            )
+            rospy.logerr(
+                "[Scene Viewer] Common causes and solutions for macOS Docker users:\n"
+                "1. XQuartz Not Running: Ensure XQuartz is installed and running on your Mac.\n"
+                "2. 'Allow connections from network clients' is NOT checked in XQuartz > Settings > Security. Please uncheck it.\n"
+                "3. IP Address Mismatch: The script automatically detects your IP, but it might be wrong. Verify with `ifconfig | grep 'inet '`.\n"
+                "4. Firewall Issues: A firewall might be blocking the connection to the X server."
+            )
+            self._test_x11_connection()
+            raise
+
+    def _test_x11_connection(self):
+        """Attempt to create a simple tkinter window to test the X11 connection."""
+        rospy.loginfo("[Scene Viewer] Attempting to open a simple test window with tkinter...")
+        try:
+            import tkinter as tk
+
+            root = tk.Tk()
+            root.title("X11 Test")
+            tk.Label(root, text="If you see this, X11 forwarding is working.").pack()
+            root.after(3000, root.destroy)  # Close after 3 seconds
+            root.mainloop()
+            rospy.loginfo(
+                "[Scene Viewer] tkinter test window opened and closed successfully. The X11 connection seems OK."
+            )
+        except Exception as tk_e:
+            rospy.logerr(f"[Scene Viewer] tkinter test failed: {tk_e}")
+            rospy.logerr(
+                "[Scene Viewer] The basic X11 connection test failed. This confirms a problem with the DISPLAY setup or XQuartz."
+            )
 
         properties = WindowProperties()
         properties.setSize(WINDOW_WIDTH, WINDOW_HEIGHT)
@@ -385,11 +417,13 @@ class SceneViewer(ShowBase):
 
         for k in self._on_screen_cars.keys():
             if not received_car_ids.get(k):
-                self._on_screen_cars.get(k).removeNode()
+                car_to_remove = self._on_screen_cars.get(k)
+                if car_to_remove:
+                    car_to_remove.removeNode()
                 cars_to_remove.append(k)
 
         for c in cars_to_remove:
-            self._on_screen_cars.pop(c)
+            self._on_screen_cars.pop(c, None)
 
         # uint32 lane_number
         # uint32 id
