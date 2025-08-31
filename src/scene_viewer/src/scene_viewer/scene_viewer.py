@@ -3,6 +3,7 @@ import os
 import random
 import rospkg
 import rospy
+from std_msgs.msg import String
 
 from direct.directtools.DirectGeometry import LineNodePath
 from direct.gui.DirectGui import *
@@ -105,20 +106,19 @@ class SceneViewer(ShowBase):
         )
         self._rebuild_road = True
         self._initialize_gui = True
+        
+        # Keyboard setup
+        self.keyboard_pub = rospy.Publisher('/keyboard_input', String, queue_size=10)
+        self.accept("w", lambda: self.keyboard_pub.publish("Up Arrow"))
+        self.accept("s", lambda: self.keyboard_pub.publish("Down Arrow"))
+        self.accept("a", lambda: self.keyboard_pub.publish("Left Arrow"))
+        self.accept("d", lambda: self.keyboard_pub.publish("Right Arrow"))
+        self.accept("h", lambda: rospy.loginfo("[Scene Viewer] H pressed"))
 
         self.__load_3d_models()
         self.__load_textures()
 
         self.taskMgr.add(self.__update_scene, "Update Scene Task")
-
-    #     self.taskMgr.add(self.__spinCameraTask, "SpinCameraTask")
-
-    # def __spinCameraTask(self, task):
-    #     angleDegrees = task.time * 6.0
-    #     angleRadians = angleDegrees * (pi / 180.0)
-    #     self.camera.setPos(20 * sin(angleRadians), -20 * cos(angleRadians), 3)
-    #     self.camera.setHpr(angleDegrees, 0, 0)
-    #     return Task.cont
 
     def __update_scene(self, task):
         # Initialize GUI when possible
@@ -536,7 +536,7 @@ class SceneViewer(ShowBase):
         )
         self.info_frame = DirectFrame(
             parent=self.aspect2d,
-            frameColor=(1, 1, 1, 0.3),
+            frameColor=(1, 0, 0, 1),  # Bright red, fully opaque
             frameSize=(
                 -frame_size.x * 0.5,
                 frame_size.x * 0.5,

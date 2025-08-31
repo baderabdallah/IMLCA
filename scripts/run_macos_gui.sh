@@ -66,4 +66,23 @@ echo "LAUNCH_FILE=$LAUNCH_FILE (GUI mode)"
 
 # Validate compose, then run
 docker compose -f docker/docker-compose.yml config >/dev/null
-DISPLAY="$DISPLAY" exec docker compose -f docker/docker-compose.yml up --build
+
+echo ""
+echo "============================================"
+echo "IMLCA SYSTEM STARTING..."
+echo "============================================"
+echo "The GUI window will open automatically."
+echo "The keyboard listener is ready for input."
+echo ""
+echo "TO SEND KEYBOARD COMMANDS:"
+echo "1. Wait for the system to fully start"
+echo "2. Open a NEW terminal window"
+echo "3. Run: docker exec -it docker-imlca-1 /bin/bash"
+echo "4. In the container terminal, type keys (a, d, w, s, etc.)"
+echo "5. The keyboard listener will capture and process them"
+echo ""
+echo "Press Ctrl+C in this window to stop the system"
+echo "============================================"
+echo ""
+
+DISPLAY="$DISPLAY" docker compose -f docker/docker-compose.yml up --build

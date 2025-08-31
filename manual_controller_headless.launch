@@ -5,13 +5,11 @@
 
     <node pkg="state_converter" type="state_converter_node" name="state_converter_node" />
 
-    <!-- Enable GUI visualizers with integrated keyboard input -->
-    <node pkg="scene_viewer" type="scene_viewer_node.py" name="scene_viewer" output="screen" />
+    <!-- Headless: omit matplotlib visualizers by default -->
+    <!-- <node pkg="scene_viewer" type="scene_viewer_node.py" name="scene_viewer" output="screen" /> -->
+    <!-- <node pkg="speed_visualizer" type="speed_visualizer_node.py" name="speed_visualizer_node" /> -->
 
-    <!-- Keyboard listener integrated into scene_viewer - no separate node needed -->
-    <!-- <node pkg="keyboard_listener" type="keyboard_listener" name="keyboard_listener" /> -->
-
-    <!-- RL agent disabled to avoid missing model errors -->
+    <!-- RL agent disabled by default in headless to avoid missing model errors -->
     <!-- <node pkg="rl_algo" type="rl_algo_node.py" name="rl_algo_node" /> -->
 
     <node pkg="kpis_tracker" type="kpis_tracker_node.py" name="kpis_tracker_node" />

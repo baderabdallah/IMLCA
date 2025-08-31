@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
+from std_msgs.msg import String
 from lane_msgs.msg import Mlc
 from lane_msgs.msg import KPIs
 from scene_viewer.constants import *
@@ -15,11 +16,13 @@ class SceneViewerNode:
     def __init__(self):
         mlc_topic = "/mlc/mlc_data"
         kpi_topic = "/kpi"
+        keyboard_topic = "/keyboard_input"
 
         self.scene_viewer = SceneViewer()
 
         self.mlc_subscriber = rospy.Subscriber(mlc_topic, Mlc, self.mlc_callback)
         self.kpi_subscriber = rospy.Subscriber(kpi_topic, KPIs, self.kpi_callback)
+        self.keyboard_subscriber = rospy.Subscriber(keyboard_topic, String, self.keyboard_callback)
 
     def mlc_callback(self, msg):
         self.latest_msg = msg
@@ -28,6 +31,15 @@ class SceneViewerNode:
     def kpi_callback(self, msg):
         self.kpi_msg = msg
         self.update_plot(frame=None)
+
+    def keyboard_callback(self, msg):
+        """Handle keyboard input"""
+        key = msg.data
+        rospy.loginfo(f"[Scene Viewer Node] Received keyboard input: {key}")
+        
+        # Pass keyboard input to scene viewer for handling
+        if hasattr(self.scene_viewer, 'handle_keyboard_input'):
+            self.scene_viewer.handle_keyboard_input(key)
 
         
     def update_plot(self, frame):

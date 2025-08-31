@@ -7,9 +7,6 @@
 
     <node pkg="scene_viewer" type="scene_viewer_node.py" name="scene_viewer" output="screen" />
 
-    <node pkg="keyboard_listener" type="keyboard_listener" name="keyboard_listener" />
-
-
     <node pkg="rl_algo" type="rl_algo_node.py" name="rl_algo_node" />
 
     <node pkg="kpis_tracker" type="kpis_tracker_node.py" name="kpis_tracker_node" />
