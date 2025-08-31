@@ -9,8 +9,6 @@
 
     <node pkg="keyboard_listener" type="keyboard_listener" name="keyboard_listener" />
 
-    <node pkg="speed_visualizer" type="speed_visualizer_node.py" name="speed_visualizer_node" />
-
 
     <node pkg="rl_algo" type="rl_algo_node.py" name="rl_algo_node" />
 

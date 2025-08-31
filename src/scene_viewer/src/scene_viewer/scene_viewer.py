@@ -43,19 +43,13 @@ from scene_viewer.objects.car import Car
 from scene_viewer.objects.trajectory import Trajectory
 from scene_viewer.objects.scene2D import Scene2D
 
-# Ensure Panda3D uses an X11-capable display in the container. Do this
-# before creating ShowBase so the window opens over XQuartz on macOS.
-# NOTE: This is critical for Dockerized GUI apps on macOS.
-# The `load-display` setting tells Panda3D which graphics backend to use.
-# We prioritize `p3tinydisplay` (software renderer) as it is more robust
-# in environments without hardware GL, like Docker. `pandagl` is the
-# hardware-accelerated fallback.
+# Ensure Panda3D uses an X11-capable display in the container for GUI mode
 os.environ.setdefault("DISPLAY", ":0")
 loadPrcFileData(
     "",
-    "load-display p3tinydisplay\n"
-    "aux-display pandagl\n"
-    "win-origin -2 -2\n"  # Hack to prevent window manager decoration issues
+    "audio-library-name null\n"     # Disable audio to avoid Docker issues
+    "framebuffer-hardware true\n"   # Use hardware framebuffer when available
+    "framebuffer-software true\n"   # Enable software framebuffer as fallback
 )
 
 ego_screen_position_offset = -27
@@ -66,46 +60,27 @@ class SceneViewer(ShowBase):
     def __init__(self):
         try:
             ShowBase.__init__(self)
+            rospy.loginfo("[Scene Viewer] Panda3D initialized successfully")
+            self._initialize_graphics_mode()
         except Exception as e:
-            rospy.logerr(f"[Scene Viewer] Panda3D ShowBase failed to initialize: {e}")
-            rospy.logerr(
-                "[Scene Viewer] This is a critical error, meaning the application could not create a graphics window."
-            )
-            rospy.logerr(
-                "[Scene Viewer] Common causes and solutions for macOS Docker users:\n"
-                "1. XQuartz Not Running: Ensure XQuartz is installed and running on your Mac.\n"
-                "2. 'Allow connections from network clients' is NOT checked in XQuartz > Settings > Security. Please uncheck it.\n"
-                "3. IP Address Mismatch: The script automatically detects your IP, but it might be wrong. Verify with `ifconfig | grep 'inet '`.\n"
-                "4. Firewall Issues: A firewall might be blocking the connection to the X server."
-            )
-            self._test_x11_connection()
-            raise
+            rospy.logerr(f"[Scene Viewer] Panda3D initialization failed: {e}")
+            raise RuntimeError(f"GUI mode required but Panda3D failed to initialize: {e}")
+        
+    def _initialize_graphics_mode(self):
+        """Initialize the scene viewer with full graphics"""
+        # Only set window properties if we have a real window (not a GraphicsBuffer)
+        if hasattr(self.win, 'requestProperties'):
+            try:
+                properties = WindowProperties()
+                properties.setSize(WINDOW_WIDTH, WINDOW_HEIGHT)
+                properties.setTitle(FIGURE_TITLE)
+                self.win.requestProperties(properties)
+                rospy.loginfo("[Scene Viewer] Window properties set successfully")
+            except Exception as e:
+                rospy.logwarn(f"[Scene Viewer] Failed to set window properties: {e}")
+        else:
+            rospy.loginfo("[Scene Viewer] Running in offscreen buffer mode - no window properties to set")
 
-    def _test_x11_connection(self):
-        """Attempt to create a simple tkinter window to test the X11 connection."""
-        rospy.loginfo("[Scene Viewer] Attempting to open a simple test window with tkinter...")
-        try:
-            import tkinter as tk
-
-            root = tk.Tk()
-            root.title("X11 Test")
-            tk.Label(root, text="If you see this, X11 forwarding is working.").pack()
-            root.after(3000, root.destroy)  # Close after 3 seconds
-            root.mainloop()
-            rospy.loginfo(
-                "[Scene Viewer] tkinter test window opened and closed successfully. The X11 connection seems OK."
-            )
-        except Exception as tk_e:
-            rospy.logerr(f"[Scene Viewer] tkinter test failed: {tk_e}")
-            rospy.logerr(
-                "[Scene Viewer] The basic X11 connection test failed. This confirms a problem with the DISPLAY setup or XQuartz."
-            )
-
-        properties = WindowProperties()
-        properties.setSize(WINDOW_WIDTH, WINDOW_HEIGHT)
-        properties.setTitle(FIGURE_TITLE)
-
-        self.win.requestProperties(properties)
         self._node_base_path = rospkg.RosPack().get_path("scene_viewer")
         self._textures_base_path = os.path.join(
             self._node_base_path, "src/scene_viewer/textures/"
@@ -147,9 +122,15 @@ class SceneViewer(ShowBase):
     #     return Task.cont
 
     def __update_scene(self, task):
-        if self._initialize_gui and self.__can_initialize_gui():
-            self._initialize_gui = False
-            self.__init_gui()
+        # Initialize GUI when possible
+        if self._initialize_gui:
+            try:
+                if self.__can_initialize_gui():
+                    self._initialize_gui = False
+                    self.__init_gui()
+            except Exception as e:
+                rospy.logwarn(f"[Scene Viewer] GUI initialization failed: {e}")
+                self._initialize_gui = False  # Stop trying to initialize GUI
 
         if hasattr(self, "latest_msg"):
             # Ensure road is initialized before adjusting
@@ -162,9 +143,12 @@ class SceneViewer(ShowBase):
             self.__display_and_update_cars(self.latest_msg)
 
             if not self._initialize_gui:
-                self.__update_gui(self.latest_msg)
-                if hasattr(self, "kpi_msg"):
-                    self.__update_gui_kpi(self.kpi_msg)
+                try:
+                    self.__update_gui(self.latest_msg)
+                    if hasattr(self, "kpi_msg"):
+                        self.__update_gui_kpi(self.kpi_msg)
+                except Exception as e:
+                    rospy.logwarn(f"[Scene Viewer] GUI update failed: {e}")
 
         return Task.cont
 
@@ -532,11 +516,21 @@ class SceneViewer(ShowBase):
             return [ego, vehicles]
 
     def __can_initialize_gui(self):
-        win_size = self.win.getProperties().getSize()
-        return win_size.x == WINDOW_WIDTH and win_size.y == WINDOW_HEIGHT
+        """Check if GUI can be initialized safely"""
+        try:
+            # Check if we have a real window with properties
+            if hasattr(self.win, 'getProperties') and hasattr(self.win, 'getProperties'):
+                win_size = self.win.getProperties().getSize()
+                return win_size.x == WINDOW_WIDTH and win_size.y == WINDOW_HEIGHT
+            else:
+                # GraphicsBuffer or other non-window type - can't initialize GUI
+                rospy.loginfo("[Scene Viewer] No window available for GUI - running in offscreen mode")
+                return False
+        except Exception as e:
+            rospy.logwarn(f"[Scene Viewer] Error checking window properties: {e}")
+            return False
 
     def __init_gui(self):
-        
         z_offset = 0.025
         frame_size = Vec2(
             (self.a2dRight - self.a2dLeft) * 0.97, (self.a2dTop - self.a2dBottom) * 0.1

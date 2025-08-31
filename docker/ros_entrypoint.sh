@@ -11,20 +11,14 @@ mkdir -p "$CATKIN_WS/src"
 export OMP_NUM_THREADS=1
 export ROS_MASTER_URI=${ROS_MASTER_URI:-http://localhost:11311}
 
-# Display/backends
-if [ "${HEADLESS:-1}" = "1" ]; then
-  export MPLBACKEND=Agg
-  export SDL_AUDIODRIVER=dummy
-  export SDL_VIDEODRIVER=dummy
-else
-  # Prefer Qt5Agg for GUI figures
-  export MPLBACKEND=${MPLBACKEND:-Qt5Agg}
-  # Ensure SDL uses X11 if available
-  unset SDL_VIDEODRIVER || true
-  # Hint Panda3D to use X11/GL instead of unknown defaults
-  export PANDA_FORCE_PARASITE_BUFFER=1
-  export PRC_DATA="load-display pandagl\naux-display pandadx9\n"
-fi
+# Display/backends - GUI mode only
+# Prefer Qt5Agg for GUI figures
+export MPLBACKEND=${MPLBACKEND:-Qt5Agg}
+# Ensure SDL uses X11 if available
+unset SDL_VIDEODRIVER || true
+# Hint Panda3D to use X11/GL instead of unknown defaults
+export PANDA_FORCE_PARASITE_BUFFER=1
+export PRC_DATA="load-display pandagl\naux-display pandadx9\n"
 
 # If the repo is mounted at /workspace, link it into catkin src
 if [ -d /workspace/src ]; then
@@ -45,8 +39,7 @@ source "$CATKIN_WS/devel/setup.bash"
 
 # Launch
 if [ -n "$LAUNCH_FILE" ]; then
-  echo "Launching: $LAUNCH_FILE (HEADLESS=$HEADLESS)"
-  export HEADLESS
+  echo "Launching: $LAUNCH_FILE (GUI mode)"
   # If LAUNCH_FILE is a bare filename and exists under /workspace, use full path
   if [[ "$LAUNCH_FILE" != *"/"* ]] && [ -f "/workspace/$LAUNCH_FILE" ]; then
     exec roslaunch "/workspace/$LAUNCH_FILE"

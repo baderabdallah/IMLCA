@@ -5,7 +5,7 @@
 From the repo root, run:
 
 ```bash
-HEADLESS=0 LAUNCH_FILE=manual_controller_visuals.launch scripts/run_macos_gui.sh
+scripts/run_macos_gui.sh
 ```
 
 ## 3D Simulation
@@ -45,8 +45,8 @@ $ pip install -U panda3d-gltf
     - Default GUI launch (2D + Panda3D viewers):
        - `scripts/run_macos_gui.sh`
     - Alternate visuals:
-       - `HEADLESS=0 LAUNCH_FILE=manual_controller_visuals.launch scripts/run_macos_gui.sh`
-       - `HEADLESS=0 LAUNCH_FILE=manual_controller_panda3d_visuals.launch scripts/run_macos_gui.sh`
+       - `LAUNCH_FILE=manual_controller_visuals.launch scripts/run_macos_gui.sh`
+       - `LAUNCH_FILE=manual_controller_panda3d_visuals.launch scripts/run_macos_gui.sh`
 
 Notes:
 - On Apple Silicon, you may need to set `DOCKER_DEFAULT_PLATFORM=linux/amd64` before first run.

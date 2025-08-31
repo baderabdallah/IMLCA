@@ -13,14 +13,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ros-noetic-roscpp ros-noetic-rospy ros-noetic-std-msgs \
     ros-noetic-message-generation ros-noetic-message-runtime \
     ros-noetic-rospack \
-    # headless & video utils for matplotlib/gym
+    # video utils for matplotlib/gym
     ffmpeg xvfb xauth x11-apps \
+    # Mesa/OpenGL libraries for software rendering
+    libgl1-mesa-glx libgl1-mesa-dri libglu1-mesa mesa-utils \
     libgl1 libglib2.0-0 libsm6 libxext6 libxrender1 \
-    libgl1-mesa-dri libglu1-mesa mesa-utils \
     qt5-default python3-pyqt5 \
     # X11/OpenAL libs for Panda3D
     libx11-6 libxrandr2 libxxf86vm1 libxcursor1 libxi6 libxinerama1 libopenal1 \
     && rm -rf /var/lib/apt/lists/*
+
+# Force software rendering for compatibility in containerized environments
+ENV LIBGL_ALWAYS_SOFTWARE=true
 
 # Upgrade pip tooling first
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel
@@ -62,11 +66,9 @@ COPY docker/ros_entrypoint.sh /ros_entrypoint.sh
 RUN chmod +x /ros_entrypoint.sh
 
 # Default environment
-ENV ROS_DISTRO=noetic \
-    ROS_VERSION=1 \
-    ROS_PYTHON_VERSION=3 \
-    HEADLESS=1 \
-    LAUNCH_FILE=manual_controller_headless.launch
+ENV ROS_MASTER_URI=http://localhost:11311
+ENV ROS_HOSTNAME=localhost
+ENV LAUNCH_FILE=manual_controller_visuals.launch
 
 ENTRYPOINT ["/ros_entrypoint.sh"]
 CMD ["roslaunch"]

@@ -8,6 +8,15 @@
 #include "core/parameters.h"
 #include <vector>
 #include <string>
+#include <deque>
+
+// Constants for keyboard inputs to avoid magic strings
+namespace KeyboardCommands {
+    const std::string LEFT_ARROW = "Left Arrow";
+    const std::string RIGHT_ARROW = "Right Arrow";
+    const std::string UP_ARROW = "Up Arrow";
+    const std::string DOWN_ARROW = "Down Arrow";
+}
 
 class MultipleLaneChange
 {
@@ -16,11 +25,11 @@ class MultipleLaneChange
 
     void SetObjects(const std::vector<VehicleState>& objects);
     void Step();
-    void SetKeyboardInput(const std::string);
+    void SetKeyboardInput(const std::string& kb_input);
 
     Trajectory GetEgoTrajectory() const;
     EgoState GetEgoState() const;
-    bool isActionPossible() const;
+    bool CanChangeLane() const;
 
   private:
     enum class MotionStates
@@ -40,22 +49,32 @@ class MultipleLaneChange
 
     using MotionStateMachine = FiniteStateMachine<MotionStates, MotionTransitions>;
 
+    // State handlers
     void HandleFollowLaneState();
+    void HandleLaneChangeState(MotionStates motion_state);
+
+    // Behavior logic
     void KeepFollowingLane();
     void StartLaneChange();
-    void UpdateEgoState(const Trajectory& ego_trajectory);
-    void HandleLaneChangeState(MultipleLaneChange::MotionStates motion_state);
     void ConsumeLaneChangeTrajectory();
+    void StartFollowingLane(MotionStates motion_state);
+    void HandleSpeedInput();
+
+    // Helpers
+    void UpdateEgoState(const Trajectory& ego_trajectory);
     bool LaneChangeTrajectoryFullyConsumed() const;
-    void StartFollowingLane(MultipleLaneChange::MotionStates motion_state);
 
     const Parameters parameters_{};
     EgoState ego_state_{};
     std::vector<VehicleState> objects_{};
-    Trajectory ego_trajectory_{};
+    std::deque<TrajectoryPoint> ego_trajectory_{}; // Use deque for efficient front removal
     MotionStateMachine state_machine_{MotionStates::kFollowLane};
     std::string kb_input_ = "";
-    int following_lane_counter{0};
+    
+    // Counter to prevent immediate lane changes after completing one
+    int following_lane_counter_{0}; 
+    static constexpr int kLaneChangeDebounce = 3; // Number of steps to wait before allowing another lane change
+    static constexpr double kSpeedIncrement = 2.0; // Speed change in kph
 };
 
 #endif // MULTIPLE_LANE_CHANGE_H

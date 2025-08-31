@@ -1,4 +1,8 @@
-# macOS GUI (Docker + XQuartz) — Troubleshooting Playbook
+# macOS GUI (Docker +## What didn't work (failed attempts)
+
+- Relying on the default macOS `$DISPLAY` exported by XQuartz (`/private/tmp/com.apple.launchd...:0`).
+- Mounting `/tmp/.X11-unix` into the container on macOS (not needed; TCP X forwarding via XQuartz is the path).
+- Broken `docker-compose.yml` with mis-indented `- LIBGL_ALWAYS_INDIRECT=1` entries (YAML parse error: "line 2: did not find expected key").tz) — Troubleshooting Playbook
 
 This note documents the Panda3D window failure we hit on macOS when running the project with GUI inside Docker, the false starts, and the reliable fix. Point any future assistant here when this recurs.
 
@@ -48,7 +52,7 @@ Exception: Could not open window.
 
 6) Launch
 - From repo root:
-  - `HEADLESS=0 LAUNCH_FILE=manual_controller_visuals.launch scripts/run_macos_gui.sh`
+  - `scripts/run_macos_gui.sh`
 
 ## Quick checklist (do this first next time)
 
@@ -74,7 +78,7 @@ Exception: Could not open window.
 ## One-liner launcher (recommended)
 
 ```bash
-HEADLESS=0 LAUNCH_FILE=manual_controller_visuals.launch scripts/run_macos_gui.sh
+scripts/run_macos_gui.sh
 ```
 
 This is the known-good path for macOS GUI in Docker with Panda3D.

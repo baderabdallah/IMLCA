@@ -5,13 +5,15 @@
 #include <std_msgs/String.h>
 #include "core/multiple_lane_change.h"
 #include "core/parameters.h"
-// #include <iostream>
+#include <memory> // Required for std::unique_ptr
 
+namespace { // Anonymous namespace for internal linkage
 
 std::vector<VehicleState> ConvertToInternalType(const lane_msgs::ScenarioData & msg)
 {
     std::vector<VehicleState> objects{};
     const auto& ros_objects{msg.vehicles_information};
+    objects.reserve(ros_objects.size()); // Pre-allocate memory
 
     for (const auto& ros_object : ros_objects)
     {
@@ -25,11 +27,12 @@ std::vector<VehicleState> ConvertToInternalType(const lane_msgs::ScenarioData & 
     return objects;
 }
 
-lane_msgs::Mlc ConvertToRosType(const lane_msgs::ScenarioData & msg, const Trajectory ego_trajectory, const EgoState ego_state)
+lane_msgs::Mlc ConvertToRosType(const lane_msgs::ScenarioData & msg, const Trajectory &ego_trajectory, const EgoState &ego_state)
 {
    lane_msgs::Mlc mlc{};
 
     mlc.scenario_data = msg;
+    mlc.ego_vehicle_trajectory.trajectory.reserve(ego_trajectory.size());
 
     for (const auto& trajectory_point : ego_trajectory)
     {
@@ -50,51 +53,58 @@ lane_msgs::Mlc ConvertToRosType(const lane_msgs::ScenarioData & msg, const Traje
    return mlc;
 }
 
-class Mlc
+} // namespace
+
+class MlcNode
 {
   private:
     ros::Subscriber scenario_subscriber_;
     ros::Subscriber keyboard_subscriber_;
     ros::Publisher trajectory_publisher_;
     ros::Timer current_timer_;
+    
+    lane_msgs::ScenarioData scenario_data_{};
+    const Parameters parameters_{};
+    EgoState ego_state_{};
+    std::unique_ptr<MultipleLaneChange> multiple_lane_change_;
 
   public:
-    Mlc(ros::NodeHandle *nh)
+    MlcNode(ros::NodeHandle *nh)
     {
         float publish_frequency_ = 10.0;
 
-        keyboard_subscriber_ = nh->subscribe("/keyboard_input", 10, &Mlc::callbackSubscriberKeyboard, this);
-        scenario_subscriber_ = nh->subscribe("/mlc/scenario_information", 10, &Mlc::callbackSubscriberScenario, this);
+        keyboard_subscriber_ = nh->subscribe("/keyboard_input", 10, &MlcNode::callbackSubscriberKeyboard, this);
+        scenario_subscriber_ = nh->subscribe("/mlc/scenario_information", 10, &MlcNode::callbackSubscriberScenario, this);
         
         trajectory_publisher_ = nh->advertise<lane_msgs::Mlc>("/mlc/mlc_data", 10);
-        current_timer_ = nh->createTimer(ros::Duration(1.0 / publish_frequency_), &Mlc::publish, this);
+        current_timer_ = nh->createTimer(ros::Duration(1.0 / publish_frequency_), &MlcNode::publish, this);
 
-        if (!init_) {
-          initialize();
-          init_ = true;
-        }
+        initialize();
 
-        multiple_lane_change_ = new MultipleLaneChange(parameters_, ego_state_);
+        multiple_lane_change_ = std::make_unique<MultipleLaneChange>(parameters_, ego_state_);
     }
 
     void initialize() {
       ego_state_.speed = parameters_.ego_speed;
-      ego_state_.lane_id = 3;
+      ego_state_.lane_id = 3; // TODO: Make this a configurable parameter
     }
 
     void publish(const ros::TimerEvent &event)
     {
+        if (!multiple_lane_change_) return;
+
         const auto ego_trajectory{multiple_lane_change_->GetEgoTrajectory()};
         const auto ego_state{multiple_lane_change_->GetEgoState()};
         const auto msg{ConvertToRosType(scenario_data_, ego_trajectory, ego_state)};
 
-        ROS_INFO("Trajectory Generated");
+        ROS_DEBUG("Trajectory Generated");
         trajectory_publisher_.publish(msg);
     }
 
     void callbackSubscriberScenario(const lane_msgs::ScenarioData & msg)
     {
         scenario_data_ = msg;
+        if (!multiple_lane_change_) return;
 
         const auto objects{ConvertToInternalType(msg)};
         multiple_lane_change_->SetObjects(objects);
@@ -102,29 +112,22 @@ class Mlc
     }
     void callbackSubscriberKeyboard(const std_msgs::String::ConstPtr& msg)
     {
-      ROS_INFO("Received key: %s", msg->data.c_str());
+      ROS_DEBUG("Received key: %s", msg->data.c_str());
+      if (!multiple_lane_change_) return;
 
-      if (multiple_lane_change_->isActionPossible()) {
+      if (multiple_lane_change_->CanChangeLane()) {
         multiple_lane_change_->SetKeyboardInput(msg->data);
       }
       return;
     }
-
-
-  private:
-    bool init_ = false;
-    lane_msgs::ScenarioData scenario_data_{};
-    const Parameters parameters_{};
-    EgoState ego_state_{};
-    MultipleLaneChange* multiple_lane_change_= nullptr;
 };
 
 int main(int argc, char **argv) {
-  ros::init(argc, argv, "mlc");
+  ros::init(argc, argv, "mlc_node");
   ros::NodeHandle nh;
   ros::AsyncSpinner spinner(4);
   spinner.start();
-  Mlc Mlc(&nh);
-  ROS_INFO("mlc is now started");
+  MlcNode mlc_node(&nh);
+  ROS_INFO("MLC node has started.");
   ros::waitForShutdown();
 }

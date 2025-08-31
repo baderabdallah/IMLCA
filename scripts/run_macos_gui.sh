@@ -8,7 +8,6 @@ set -euo pipefail
 
 # Allow overrides from environment
 : "${LAUNCH_FILE:=manual_controller_visuals.launch}"
-: "${HEADLESS:=0}"
 
 # Start and configure XQuartz automatically (macOS only)
 if [[ "$(uname -s)" == "Darwin" ]]; then
@@ -57,10 +56,9 @@ if [[ "${DISPLAY:-}" == /private/tmp/* ]] || [[ -z "${DISPLAY:-}" ]]; then
 	fi
 fi
 export LAUNCH_FILE
-export HEADLESS
 
 echo "Using DISPLAY=$DISPLAY"
-echo "LAUNCH_FILE=$LAUNCH_FILE (HEADLESS=$HEADLESS)"
+echo "LAUNCH_FILE=$LAUNCH_FILE (GUI mode)"
 
 # Apple Silicon note: uncomment to force AMD64 build if needed
 # export DOCKER_DEFAULT_PLATFORM=linux/amd64
