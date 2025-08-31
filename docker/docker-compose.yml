@@ -6,7 +6,7 @@ services:
       dockerfile: docker/Dockerfile
     image: imlca:noetic
     environment:
-      DISPLAY: ${DISPLAY:-192.168.1.15:0}
+      DISPLAY: ${DISPLAY}
       QT_X11_NO_MITSHM: "1"
       LIBGL_ALWAYS_SOFTWARE: "true"
       MESA_LOADER_DRIVER_OVERRIDE: swrast

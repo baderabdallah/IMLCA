@@ -56,6 +56,7 @@ if [[ "${DISPLAY:-}" == /private/tmp/* ]] || [[ -z "${DISPLAY:-}" ]]; then
 	fi
 fi
 export LAUNCH_FILE
+export DISPLAY
 
 echo "Using DISPLAY=$DISPLAY"
 echo "LAUNCH_FILE=$LAUNCH_FILE (GUI mode)"
@@ -65,4 +66,4 @@ echo "LAUNCH_FILE=$LAUNCH_FILE (GUI mode)"
 
 # Validate compose, then run
 docker compose -f docker/docker-compose.yml config >/dev/null
-exec docker compose -f docker/docker-compose.yml up --build
+DISPLAY="$DISPLAY" exec docker compose -f docker/docker-compose.yml up --build

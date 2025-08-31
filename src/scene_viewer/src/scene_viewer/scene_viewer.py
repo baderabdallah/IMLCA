@@ -43,8 +43,7 @@ from scene_viewer.objects.car import Car
 from scene_viewer.objects.trajectory import Trajectory
 from scene_viewer.objects.scene2D import Scene2D
 
-# Ensure Panda3D uses an X11-capable display in the container for GUI mode
-os.environ.setdefault("DISPLAY", ":0")
+# Panda3D configuration for GUI mode (display handled by shell script)
 loadPrcFileData(
     "",
     "audio-library-name null\n"     # Disable audio to avoid Docker issues

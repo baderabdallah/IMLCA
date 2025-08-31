@@ -11,14 +11,11 @@ mkdir -p "$CATKIN_WS/src"
 export OMP_NUM_THREADS=1
 export ROS_MASTER_URI=${ROS_MASTER_URI:-http://localhost:11311}
 
-# Display/backends - GUI mode only
+# Backend configuration - GUI mode only
 # Prefer Qt5Agg for GUI figures
 export MPLBACKEND=${MPLBACKEND:-Qt5Agg}
 # Ensure SDL uses X11 if available
 unset SDL_VIDEODRIVER || true
-# Hint Panda3D to use X11/GL instead of unknown defaults
-export PANDA_FORCE_PARASITE_BUFFER=1
-export PRC_DATA="load-display pandagl\naux-display pandadx9\n"
 
 # If the repo is mounted at /workspace, link it into catkin src
 if [ -d /workspace/src ]; then
