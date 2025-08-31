@@ -11,8 +11,8 @@
     <!-- Keyboard listener integrated into scene_viewer - no separate node needed -->
     <!-- <node pkg="keyboard_listener" type="keyboard_listener" name="keyboard_listener" /> -->
 
-    <!-- RL agent disabled to avoid missing model errors -->
-    <!-- <node pkg="rl_algo" type="rl_algo_node.py" name="rl_algo_node" /> -->
+    <!-- RL agent enabled: publishes actions on /keyboard_input using the loaded model -->
+    <node pkg="rl_algo" type="rl_algo_node.py" name="rl_algo_node" />
 
     <node pkg="kpis_tracker" type="kpis_tracker_node.py" name="kpis_tracker_node" />
 </launch>

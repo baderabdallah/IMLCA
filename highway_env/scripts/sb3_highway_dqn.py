@@ -9,7 +9,8 @@ TRAIN = False
 if __name__ == "__main__":
     # Create the environment
     env = gym.make("highway-fast-v0", render_mode="rgb_array")
-    env.configure(
+    # Configure the base env (not the Gymnasium wrapper)
+    env.unwrapped.configure(
         {
             "observation": {"type": "Kinematics"},
             "action": {
@@ -68,11 +69,14 @@ if __name__ == "__main__":
 
     # Run the trained model and record video
     model = DQN.load("highway_dqn/model", env=env)
+    # Optional: adjust FPS for rendering on base env before wrapping
+    env.unwrapped.configure({"simulation_frequency": 15})
+    # Wrap with Gymnasium's RecordVideo
     env = RecordVideo(
-        env, video_folder="highway_dqn/videos", episode_trigger=lambda e: True
+        env,
+        video_folder="highway_dqn/videos",
+        episode_trigger=lambda e: True,
     )
-    env.unwrapped.set_record_video_wrapper(env)
-    env.configure({"simulation_frequency": 15})  # Higher FPS for rendering
 
     for videos in range(10):
         done = truncated = False

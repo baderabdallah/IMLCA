@@ -30,6 +30,7 @@ ENV LIBGL_ALWAYS_SOFTWARE=true
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 
 # Core scientific stack and ROS Python helpers
+# Python in ROS Noetic images is 3.8; NumPy 2.x requires >=3.9, so we stay on NumPy 1.24.x and add runtime shims in nodes.
 RUN pip install --no-cache-dir \
     numpy==1.24.4 \
     matplotlib==3.7.5 \
