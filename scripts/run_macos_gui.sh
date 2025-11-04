@@ -65,7 +65,7 @@ echo "LAUNCH_FILE=$LAUNCH_FILE (GUI mode)"
 # export DOCKER_DEFAULT_PLATFORM=linux/amd64
 
 # Validate compose, then run
-docker compose -f docker/docker-compose.yml config >/dev/null
+docker compose -f .devcontainer/docker-compose.yml config >/dev/null
 
 echo ""
 echo "============================================"
@@ -85,4 +85,4 @@ echo "Press Ctrl+C in this window to stop the system"
 echo "============================================"
 echo ""
 
-DISPLAY="$DISPLAY" docker compose -f docker/docker-compose.yml up --build
+DISPLAY="$DISPLAY" docker compose -f .devcontainer/docker-compose.yml up --build

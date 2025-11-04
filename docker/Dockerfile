@@ -1,4 +1,5 @@
-# Base ROS Noetic (Ubuntu 20.04) with minimal ROS tools
+## DEPRECATED: This Dockerfile mirrors .devcontainer/Dockerfile for compose builds.
+## Using ros:noetic-ros-base for wider platform support (desktop-full not available on arm64).
 FROM ros:noetic-ros-base
 
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -9,6 +10,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential cmake git curl vim rsync \
     python3-pip python3-dev python-is-python3 \
+    python3-rosdep python3-rosinstall python3-vcstools \
     ros-noetic-catkin ros-noetic-roslaunch \
     ros-noetic-roscpp ros-noetic-rospy ros-noetic-std-msgs \
     ros-noetic-message-generation ros-noetic-message-runtime \
@@ -22,6 +24,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # X11/OpenAL libs for Panda3D
     libx11-6 libxrandr2 libxxf86vm1 libxcursor1 libxi6 libxinerama1 libopenal1 \
     && rm -rf /var/lib/apt/lists/*
+
+# Initialize rosdep for dependency management
+RUN rosdep init || true && rosdep update
 
 # Force software rendering for compatibility in containerized environments
 ENV LIBGL_ALWAYS_SOFTWARE=true
@@ -63,7 +68,7 @@ RUN mkdir -p ${CATKIN_WS}/src
 WORKDIR ${CATKIN_WS}
 
 # Copy entrypoint (located in docker/ relative to build context root)
-COPY docker/ros_entrypoint.sh /ros_entrypoint.sh
+COPY .devcontainer/ros_entrypoint.sh /ros_entrypoint.sh
 RUN chmod +x /ros_entrypoint.sh
 
 # Default environment

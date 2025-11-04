@@ -29,6 +29,20 @@ IMLCA (Intelligent Multi-Lane Change Agent) is a sophisticated autonomous drivin
 
 ---
 
+## 🎬 Demo Videos
+
+### 2D ROS Simulation
+Watch the real-time 2D visualization of the multi-lane change algorithm in action:
+
+https://github.com/baderabdallah/IMLCA/assets/media/2D%20ROS%20Simulation.mp4
+
+### 3D Highway Pilot Demo
+Experience the immersive 3D Panda3D visualization of intelligent highway driving:
+
+https://github.com/baderabdallah/IMLCA/assets/media/Intelligent%20Highway%20Pilot%203D%20Demo.mp4
+
+---
+
 ## 🚀 Quick Start
 
 ### macOS/Windows (Recommended)
