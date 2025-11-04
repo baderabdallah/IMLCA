@@ -31,14 +31,6 @@ IMLCA (Intelligent Multi-Lane Change Agent) is a sophisticated autonomous drivin
 
 ## 🎬 Demo Videos
 
-### 2D ROS Simulation
-Watch the real-time 2D visualization of the multi-lane change algorithm in action:
-
-<!-- Replace this URL with the GitHub-generated URL after uploading to an issue -->
-
-https://private-user-images.githubusercontent.com/43698361/509614248-44df661f-8d40-415e-8664-294a5af9f219.mp4?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NjIyNjgzNjIsIm5iZiI6MTc2MjI2ODA2MiwicGF0aCI6Ii80MzY5ODM2MS81MDk2MTQyNDgtNDRkZjY2MWYtOGQ0MC00MTVlLTg2NjQtMjk0YTVhZjlmMjE5Lm1wND9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTExMDQlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUxMTA0VDE0NTQyMlomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPThmMTIwMzdlMjg0OTNkNTUyZmNjOGEzYzRhZDdjYTYyMDgxMDQzMzc4M2ZmOGUwMDg4NzMwZmZiMWNhMWZkZWYmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.H4uiYOZ6cJclj3j4hrSaMNrAs23NUPKwePNZWFyOrZM
-
-
 ### 3D Highway Pilot Demo
 Experience the immersive 3D Panda3D visualization of intelligent highway driving:
 
