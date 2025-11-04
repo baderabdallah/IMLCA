@@ -34,18 +34,20 @@ IMLCA (Intelligent Multi-Lane Change Agent) is a sophisticated autonomous drivin
 ### 2D ROS Simulation
 Watch the real-time 2D visualization of the multi-lane change algorithm in action:
 
-<video width="100%" controls>
-  <source src="./media/2D ROS Simulation.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+<!-- Replace this URL with the GitHub-generated URL after uploading to an issue -->
+[UPLOAD_2D_VIDEO_TO_GITHUB_ISSUE_AND_REPLACE_THIS_TEXT_WITH_THE_URL]
 
 ### 3D Highway Pilot Demo
 Experience the immersive 3D Panda3D visualization of intelligent highway driving:
 
-<video width="100%" controls>
-  <source src="./media/Intelligent Highway Pilot 3D Demo.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+<!-- Replace this URL with the GitHub-generated URL after uploading to an issue -->
+[UPLOAD_3D_VIDEO_TO_GITHUB_ISSUE_AND_REPLACE_THIS_TEXT_WITH_THE_URL]
+
+> **📝 How to add videos:** 
+> 1. Go to Issues → New Issue
+> 2. Drag your video files into the description
+> 3. Copy the generated URLs and replace the placeholders above
+> 4. The videos will then display inline in your README!
 
 ---
 
