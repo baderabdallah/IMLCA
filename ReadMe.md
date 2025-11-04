@@ -37,12 +37,6 @@ Experience the immersive 3D Panda3D visualization of intelligent highway driving
 <!-- Replace this URL with the GitHub-generated URL after uploading to an issue -->
 https://private-user-images.githubusercontent.com/43698361/509614257-c82e4cb9-d781-4ebd-b801-eff7f8ca7d99.mp4?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NjIyNjgzNjIsIm5iZiI6MTc2MjI2ODA2MiwicGF0aCI6Ii80MzY5ODM2MS81MDk2MTQyNTctYzgyZTRjYjktZDc4MS00ZWJkLWI4MDEtZWZmN2Y4Y2E3ZDk5Lm1wND9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTExMDQlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUxMTA0VDE0NTQyMlomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTg5NTM3MTA2MWQ5ZjQwNjg1NTY1NDRjYTU0OGEwY2YxNWI3YWU2YzJiZTc4Nzc4MzUwZWU4ZWM4ZWZhMzFlYzgmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.h7TKCjcEaoZyjkaC8Sgs7PW8IFehh6waT17atDhXfIY
 
-> **📝 How to add videos:** 
-> 1. Go to Issues → New Issue
-> 2. Drag your video files into the description
-> 3. Copy the generated URLs and replace the placeholders above
-> 4. The videos will then display inline in your README!
-
 ---
 
 ## 🚀 Quick Start
